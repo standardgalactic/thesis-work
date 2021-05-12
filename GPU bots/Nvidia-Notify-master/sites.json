@@ -1,0 +1,406 @@
+[
+    {
+        "url": "https://www.newegg.com/p/pl?d=rtx+3080",
+        "keyword": "Add to cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Newegg test",
+        "enabled": false
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114567",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Memexpress test",
+        "enabled": false
+    },
+
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114003",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v1",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114024",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v2",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114092",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v3",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00113957",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v4",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00113956",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v5",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00113954",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v6",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114404",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v7",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114907",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v8",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00115659",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v9",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114312",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v10",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114687",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v11",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00113955",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v12",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114313",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v13",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114094",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v14",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00113972",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v15",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00115134",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3080v16",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114567",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v1",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114688",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v2",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114560",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v3",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114566",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v4",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114607",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v5",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114407",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v6",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114447",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v7",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114606",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v8",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114405",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v9",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114689",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v10",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00116289",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v11",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00115232",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v12",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114785",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v13",
+        "enabled": true
+    },
+    {
+        "url": "https://www.memoryexpress.com/Products/MX00114605",
+        "keyword": "Add To Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "MemExpress 3070v14",
+        "enabled": true
+    },
+    {
+        "url": "https://www.staples.ca/products/3004913-en-msi-geforce-rtx-3070-ventus-2x-oc-graphics-card",
+        "keyword": "Out of Stock",
+        "alert": false,
+        "method": "GET_SELENIUM",
+        "name": "Staples 3070",
+        "enabled": true
+    },
+    {
+        "url": "https://www.newegg.com/p/pl?d=rtx+3080&N=100007709%20601357247",
+        "keyword": "Add to cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Newegg 3080",
+        "enabled": true
+    },
+    {
+        "url": "https://www.newegg.com/p/pl?d=rtx+3070&SrchInDesc=rtx+3070&N=100007709&isdeptsrh=1",
+        "keyword": "Add to cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Newegg 3070",
+        "enabled": true
+    },
+    {
+        "url": "https://www.newegg.com/p/pl?d=rtx+3060&SrchInDesc=rtx+3060&N=100007709%204019%204020%204021%204022&isdeptsrh=1",
+        "keyword": "Add to cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Newegg 3060",
+        "enabled": false
+    },
+    {
+        "url": "https://www.bhphotovideo.com/c/search?q=rtx%203080&filters=fct_category%3Agraphic_cards_6567",
+        "keyword": "Add to Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "BandH 3080",
+        "enabled": true
+    },
+    {
+        "url": "https://www.bhphotovideo.com/c/search?q=rtx%203070&filters=fct_category%3Agraphic_cards_6567",
+        "keyword": "Add to Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "BandH 3070",
+        "enabled": true
+    },
+    {
+        "url": "https://www.bhphotovideo.com/c/search?q=rtx%203060&filters=fct_category%3Agraphic_cards_6567",
+        "keyword": "Add to Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "BandH 3060",
+        "enabled": true
+    },
+    {
+        "url": "https://www.canadacomputers.com/search/results_details.php?language=en&keywords=rtx%203080&&cpath=43",
+        "keyword": "Add to Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Canada computers 3080",
+        "enabled": true
+    },
+    {
+        "url": "https://www.canadacomputers.com/search/results_details.php?language=en&keywords=rtx%203070&&cpath=43",
+        "keyword": "Add to Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Canada computers 3070",
+        "enabled": true
+    },
+    {
+        "url": "https://www.canadacomputers.com/search/results_details.php?language=en&keywords=rtx%203060&&cpath=43",
+        "keyword": "Add to Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "Canada computers 3060",
+        "enabled": true
+    },
+
+
+
+
+
+
+
+
+
+    {
+        "url": "https://www.bestbuy.com/site/searchpage.jsp?st=mouse&_dyncharset=UTF-8&_dynSessConf=&id=pcat17071&type=page&sc=Global&cp=1&nrp=&sp=&qp=&list=n&af=true&iht=y&usc=All+Categories&ks=960&keys=keys",
+        "keyword": "Add to Cart",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "BestBuy 3080",
+        "enabled": false
+    },
+    {
+        "url": "https://www.bestbuy.com/site/searchpage.jsp?st=tv",
+        "keyword": "cart.svg",
+        "alert": true,
+        "method": "GET_SELENIUM",
+        "name": "BestBuyTest",
+        "enabled": false
+    },
+    {
+        "url": "https://www.amazon.com/stores/page/6B204EA4-AAAC-4776-82B1-D7C3BD9DDC82?ingress=0",
+        "keyword": ">Add to Cart<",
+        "alert": true,
+        "method": "GET_URLLIB",
+        "name": "Amazon 3080",
+        "enabled": false
+    },
+    {
+        "url": "https://store.asus.com/us/item/202009AM160000001",
+        "keyword": ">Buy Now<",
+        "alert": true,
+        "method": "GET_URLLIB",
+        "name": "ASUS",
+        "enabled": false
+    },
+    {
+        "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3080/",
+        "api": "https://api-prod.nvidia.com/direct-sales-shop/DR/products/en_us/USD/5438481700",
+        "keyword": "",
+        "alert": false,
+        "method": "GET_API",
+        "name": "Nvidia 3080",
+        "enabled": false
+    },
+    {
+        "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/",
+        "api": "https://api-prod.nvidia.com/direct-sales-shop/DR/products/en_us/USD/5438481600,5443202600",
+        "keyword": "",
+        "alert": false,
+        "method": "GET_API",
+        "name": "Nvidia 3090",
+        "enabled": false
+    },
+    {
+        "url": "https://www.evga.com/products/productlist.aspx?type=0&family=GeForce+16+Series+Family&chipset=GTX+1650+Super",
+        "keyword": "AddCart",
+        "alert": true,
+        "method": "GET_URLLIB",
+        "name": "EVGATest",
+        "enabled": false
+    }
+]
