@@ -2,6 +2,13 @@
 """
 V2 contains less hardcoded values throughout the code, and performs statistical tests on violin plots
 
+To do:
+    - add vessel distance analysis
+    - calculate microvessel density across areas (MVD)
+    - optional data filtering by value
+    - support for grouping patients by supplementary data (e.g. who is IDH wt or mutant)
+    - pairplots
+
 @author: Mark Zaidi
 """
 
@@ -17,14 +24,21 @@ from scipy import stats
 from statannot import add_stat_annotation
 import time
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\cell_measurements.csv')
+data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\measurements_ROI4only.csv')
 annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
-#%% set constants (currently unused)
+col_names=data.columns
+#%% set constants
 param_Name='Name'
 param_Parent='Parent'
 param_UnusedClass='PathCellObject'
 param_pos_kwd='pimo positive'
 param_neg_kwd='pimo negative'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures'
+#measurement names for Feb 2021 batch
+measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurement names for Jun 2021 old batch
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+
 #%% count the number of cells in different regions of interest
 cells_in_pimo_pos=sum(data.apply(lambda x: 1 if x[param_Parent] == param_pos_kwd else 0 , axis=1))
 cells_in_pimo_neg=sum(data.apply(lambda x: 1 if x[param_Parent] == param_neg_kwd else 0 , axis=1))
@@ -109,6 +123,8 @@ fig.tight_layout()
 
 #fig.tight_layout()
 #plt.savefig(r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\Percent positive scores in PIMO + vs - regions.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+plt.savefig(figpath + r'\Percent positive scores in PIMO + vs - regions.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+plt.close()
 
 # Make some labels.
 #ratios = ["label%d" % i for i in xrange(len(rects))]
@@ -120,10 +136,12 @@ neg_data= data[data['Parent'].str.contains('pimo negative',regex=False)]
 #maybe made dataframe with columns: marker, measurement, and hmmmmmmmm
 col_names=data.columns
 #%% create a clustered violin plot with 1 example
-violin_plt_data=data[data['Gd(155)_155Gd-PIMO: Cell: Mean']<0.9*data['Gd(155)_155Gd-PIMO: Cell: Mean'].max()]
-ax = sns.violinplot( x='Parent',y="Gd(155)_155Gd-PIMO: Cell: Mean",data=violin_plt_data, palette="muted",scale='width',cut=0)
+#violin_plt_data=data[data['Pr(141)_141Pr-aSMA: Cell: Mean']<0.9*data['Pr(141)_141Pr-aSMA: Cell: Mean'].max()]
+#ax = sns.violinplot( x='Parent',y="Pr(141)_141Pr-aSMA: Cell: Mean",data=violin_plt_data, palette="muted",scale='width',cut=0)
 #%% now do the above, but iteratively
-measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+
 #2 lines below are violin code
 # fig = plt.figure(figsize=(30, 30))
 # gs = fig.add_gridspec(3, 6)
@@ -131,7 +149,7 @@ measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: 
 #fig = plt.figure(figsize=(6, 6))
 count=0
 index=0,0
-figpath=r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\figures'
+#figpath=r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\figures'
 measure_short=[i.split('-', 1)[1] for i in measurements_of_interest]
 measure_short_for_fname=[i.split(':', 1)[0] for i in measure_short]
 
@@ -148,7 +166,7 @@ for measure in measurements_of_interest:
     #Calculate stats. NOTE: NOT SURE HOW RELIABLE THESE ARE; GETTING INSANELY SMALL P VALUES
     test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+2*data[measure].std())], x='Parent', y=measure,
                                    box_pairs=[(param_neg_kwd, param_pos_kwd)],
-                                   test='t-test_welch', text_format='full',
+                                   test='t-test_ind', text_format='full',
                                    loc='outside', verbose=2,comparisons_correction=None)
     print(measure,stats.ttest_ind(neg_selection,pos_selection,equal_var=False),'\n')
 
@@ -158,11 +176,11 @@ for measure in measurements_of_interest:
 #%% create overall violinplot figure
 fig = plt.figure(figsize=(30, 30))
 
-gs = fig.add_gridspec(3, 6)
+gs = fig.add_gridspec(5, 6)
 count=0
 index=0,0
 
-figpath=r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\figures'
+#figpath=r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\figures'
 for measure in measurements_of_interest:
     
     #ax = sns.violinplot( x='Parent',y=measure,data=data[data[measure]<0.9*data[measure].max()], palette="muted",scale='width',cut=0)
@@ -178,12 +196,20 @@ for measure in measurements_of_interest:
         index=1,count-6
     elif (count>=12)&(count<18):
         index=2,count-12
+    elif (count>=18)&(count<24):
+        index=3,count-18
+    elif (count>=24)&(count<30):
+        index=4,count-24
     ax = fig.add_subplot(gs[index])
-
+    sns.set(font_scale=0.5)
+    ax.set_ylabel(measure_short[count])
     ax = sns.violinplot( x='Parent',y=measure,data=data[data[measure]<(data[measure].mean()+2*data[measure].std())], palette="muted",scale='width',cut=0,inner="box")
+
+    
+
     test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+2*data[measure].std())], x='Parent', y=measure,
                                    box_pairs=[(param_neg_kwd, param_pos_kwd)],
-                                   test='t-test_welch', text_format='full',
+                                   test='t-test_ind', text_format='full',
                                    loc='outside', verbose=2,comparisons_correction=None)
     count=count+1
 #need to put a 1 second pause to finish plotting before applying tight layout
