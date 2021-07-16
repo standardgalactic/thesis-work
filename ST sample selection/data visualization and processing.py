@@ -22,12 +22,15 @@ if not os.path.exists(output_folder_path):
     
 #%% prune data, keeping only the columns you'll use (optional, can comment out)
 ##list(annotations.columns.values)
+##list(cells.columns.values)
+
+#Define table to include only select column names
 annotations=annotations[['Image','Class','Area µm^2','Max diameter µm','ROI: 0.50 µm per pixel: DAB: Mean','ROI: 0.50 µm per pixel: DAB: Std.dev.','Num Detections']]
-cells=cells[['Image','Parent','Centroid X µm','Centroid Y µm','Cell: DAB OD mean','Cell: DAB OD std dev']]
+cells=cells[['Image','Parent','Centroid X µm','Centroid Y µm','Cell: DAB OD mean','Cell: DAB OD std dev','Cytoplasm: DAB OD mean','Cytoplasm: DAB OD std dev','Nucleus: DAB OD mean','Nucleus: DAB OD sum','Nucleus: DAB OD std dev']]
 
 ##To do: first, only keep columns you will be using for analysis. free up some memory. Then, check .pptx from lab meeting for analysis details
 #%% Create empty summary table with columns
-columns=['slide','pct_necrosis','cell_density','cells_per_spot','tissue_width','pct_area_covered','mean_tumor_pimo','std_tumor_pimo','mean_cellular_pimo','std_cellular_pimo']
+columns=['slide','pct_necrosis','cell_density','cells_per_spot','tissue_width','pct_area_covered','mean_tumor_pimo','std_tumor_pimo','mean_cellular_pimo','std_cellular_pimo','mean_Cytoplasm_pimo','std_Cytoplasm_pimo','mean_Nucleus_pimo','std_Nucleus_pimo']
 data=[]
 #%% Calculate measurements on a per-image basis
 images=pandas.unique(annotations.Image)
@@ -52,21 +55,28 @@ for slide in images:
     #Cell-level calculations
     mean_cellular_pimo=cells.loc[(cells['Image'] == slide) & (cells['Parent'] =='Tumor')]['Cell: DAB OD mean'].mean()
     std_cellular_pimo=cells.loc[(cells['Image'] == slide) & (cells['Parent'] =='Tumor')]['Cell: DAB OD mean'].std()
+    #Cytoplasm-level calculations
+    mean_Cytoplasm_pimo=cells.loc[(cells['Image'] == slide) & (cells['Parent'] =='Tumor')]['Cytoplasm: DAB OD mean'].mean()
+    std_Cytoplasm_pimo=cells.loc[(cells['Image'] == slide) & (cells['Parent'] =='Tumor')]['Cytoplasm: DAB OD mean'].std()
+    #Nucleus-level calculations
+    mean_Nucleus_pimo=cells.loc[(cells['Image'] == slide) & (cells['Parent'] =='Tumor')]['Nucleus: DAB OD mean'].mean()
+    std_Nucleus_pimo=cells.loc[(cells['Image'] == slide) & (cells['Parent'] =='Tumor')]['Nucleus: DAB OD mean'].std()
     # Append data
-    data.append([slide,pct_necrosis,cell_density,cells_per_spot,tissue_width,pct_area_covered,mean_tumor_pimo,std_tumor_pimo,mean_cellular_pimo,std_cellular_pimo])
+    data.append([slide,pct_necrosis,cell_density,cells_per_spot,tissue_width,pct_area_covered,mean_tumor_pimo,std_tumor_pimo,mean_cellular_pimo,std_cellular_pimo,mean_Cytoplasm_pimo,std_Cytoplasm_pimo,mean_Nucleus_pimo,std_Nucleus_pimo])
 #%% Create and write summary table
 summary_table = pandas.DataFrame(data, columns=columns)
 summary_table['short_name'] = summary_table['slide'].str.split(' ').str[0] #remove everything after and including the space
 summary_table=summary_table.sort_values(['mean_cellular_pimo'])
 summary_table.to_excel(r"C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\ST sample selection data analysis\summary_table.xlsx")
-#%% Data visualization
+#%% Data visualization constants
 #15A, 19, 33B, and 35 were the samples they used
+bars = summary_table['short_name'] #x tick names, reusable
+y_pos = range(len(bars)) 
+x = np.arange(len(bars))  # the label locations
 
-## Percent necrosis
+#%% Percent necrosis
 figname='Percent Necrosis'
 heights = summary_table['pct_necrosis'] #y values
-bars = summary_table['short_name'] #x tick names, reusable
-y_pos = range(len(bars)) #position of bars, reusable
 plt.bar(y_pos, heights) #plot bar
 plt.xticks(y_pos, bars, rotation=90) # Plot names and rotate
 plt.title(figname)
@@ -74,7 +84,7 @@ plt.ylabel('Percentage')
 plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
 plt.close()
 
-##cells per spot
+#%% cells per spot
 figname='Expected Cells Per Spot'
 heights = summary_table['cells_per_spot'] #y values
 plt.bar(y_pos, heights) #plot bar
@@ -84,7 +94,7 @@ plt.ylabel('Number of Cells in 55 µm Diameter Spot')
 plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
 plt.close()
 
-##Percentage of slide area covered
+#%% Percentage of slide area covered
 figname='Percentage of 6.5x6.5mm Capture Area Covered By Tissue'
 heights = summary_table['pct_area_covered'] #y values
 plt.bar(y_pos, heights) #plot bar
@@ -94,7 +104,7 @@ plt.ylabel('Percentage')
 plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
 plt.close()
 
-##Percentage of slide area covered
+#%% Percentage of slide area covered
 figname='Percentage of 6.5x6.5mm Capture Area Covered By Tissue'
 heights = summary_table['pct_area_covered'] #y values
 plt.bar(y_pos, heights) #plot bar
@@ -104,12 +114,9 @@ plt.ylabel('Percentage')
 plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
 plt.close()
 
-labels = ['G1', 'G2', 'G3', 'G4', 'G5']
-men_means = [20, 34, 30, 35, 27]
-women_means = [25, 32, 34, 20, 25]
 
-x = np.arange(len(bars))  # the label locations
-## mean pimo
+
+#%% mean pimo in cellular vs all areas
 figname='Mean Deconvolved Pimonidazole Stain Intensity'
 width = 0.35  # the width of the bars
 
@@ -123,7 +130,7 @@ plt.legend()
 plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
 plt.close()
 
-#%% std pimo
+#%% std pimo in cellular vs all areas
 figname='Standard Deviation Of Deconvolved Pimonidazole Stain Intensity'
 width = 0.35  # the width of the bars
 
@@ -146,5 +153,49 @@ plt.bar(y_pos, heights) #plot bar
 plt.xticks(y_pos, bars, rotation=90) # Plot names and rotate
 plt.title(figname)
 plt.ylabel('RIN score')
+plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
+plt.close()
+
+#%% mean pimo in nuclear vs cytosolic areas
+figname='Cellular Subcompartment Localization of Pimonidazole (v1)'
+width = 0.35  # the width of the bars
+
+fig, ax = plt.subplots()
+rects1 = ax.bar(x - width/2, summary_table['mean_Nucleus_pimo'], width=width,label='Nucleus',align='center')
+rects2 = ax.bar(x + width/2, summary_table['mean_Cytoplasm_pimo'],  width=width, label='Cytoplasm',align='center')
+
+plt.xticks(y_pos, bars, rotation=90) # Plot names and rotate
+plt.title(figname)
+plt.ylabel('DAB Signal Intensity (A.U.)')
+plt.legend()
+plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
+plt.close()
+#%% mean pimo in nuclear vs cytosolic vs whole cell areas
+figname='Cellular Subcompartment Localization of Pimonidazole(v2)'
+width = 0.25  # the width of the bars
+
+fig, ax = plt.subplots()
+rects1 = ax.bar(x - width, summary_table['mean_Nucleus_pimo'], width=width,label='Nucleus',align='center')
+rects2 = ax.bar(x, summary_table['mean_Cytoplasm_pimo'],  width=width, label='Cytoplasm',align='center')
+rects3 = ax.bar(x + width, summary_table['mean_cellular_pimo'],  width=width, label='Whole Cell',align='center')
+
+plt.xticks(y_pos, bars, rotation=90) # Plot names and rotate
+plt.title(figname)
+plt.ylabel('DAB Signal Intensity (A.U.)')
+plt.legend()
+plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
+plt.close()
+#%% stdev pimo in nuclear vs cytosolic areas
+figname='Cellular Subcompartment Standard Deviation of Pimonidazole'
+width = 0.35  # the width of the bars
+
+fig, ax = plt.subplots()
+rects1 = ax.bar(x - width/2, summary_table['std_Nucleus_pimo'], width=width,label='Nucleus',align='center')
+rects2 = ax.bar(x + width/2, summary_table['std_Cytoplasm_pimo'],  width=width, label='Cytoplasm',align='center')
+
+plt.xticks(y_pos, bars, rotation=90) # Plot names and rotate
+plt.title(figname)
+plt.ylabel('DAB Signal Intensity (A.U.)')
+plt.legend()
 plt.savefig(os.path.join(output_folder_path,figname+'.png'),dpi=800)
 plt.close()

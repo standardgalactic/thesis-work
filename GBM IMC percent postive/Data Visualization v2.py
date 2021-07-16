@@ -24,7 +24,7 @@ from scipy import stats
 from statannot import add_stat_annotation
 import time
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\measurements_ROI4only.csv')
+data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\cell_measurements.csv')
 annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
 col_names=data.columns
 #%% set constants
@@ -34,11 +34,20 @@ param_UnusedClass='PathCellObject'
 param_pos_kwd='pimo positive'
 param_neg_kwd='pimo negative'
 figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures'
+#For intensity comparisons, specify number of standard deviations above mean to include intensities below it. Default is 2
+num_std_to_include=2
 #measurement names for Feb 2021 batch
 measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #measurement names for Jun 2021 old batch
 #measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
-
+#Reset plot styles, if running this script multiple times. CURRENTLY DISABLED AS THIS PREVENTS FIGURE WINDOW POP UP
+#matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+plt.close('all')
+plt.style.use('default')
+#%%Optional filtering of data
+#Filter by patient
+# slide_IDs=pandas.unique(data["Image"])
+# data=data[data['Image'].str.contains("39")]
 #%% count the number of cells in different regions of interest
 cells_in_pimo_pos=sum(data.apply(lambda x: 1 if x[param_Parent] == param_pos_kwd else 0 , axis=1))
 cells_in_pimo_neg=sum(data.apply(lambda x: 1 if x[param_Parent] == param_neg_kwd else 0 , axis=1))
@@ -157,14 +166,13 @@ for measure in measurements_of_interest:
     #set up conditions for filtering cells that belong to a given annotation and are less than the mean + 2 std for the measurement
     cond1_pos= data[param_Parent].str.contains(param_pos_kwd,regex=False)
     cond1_neg= data[param_Parent].str.contains(param_neg_kwd,regex=False)
-    cond2=data[measure]<(data[measure].mean()+2*data[measure].std())
+    cond2=data[measure]<(data[measure].mean()+num_std_to_include*data[measure].std())
     pos_selection=data[cond1_pos&cond2][measure]
     neg_selection=data[cond1_neg&cond2][measure]
 
-    ax = sns.violinplot( x='Parent',y=measure,data=data[data[measure]<(data[measure].mean()+2*data[measure].std())], palette="muted",scale='width',cut=0,inner="box")
-
+    ax = sns.violinplot( x='Parent',y=measure,data=data[data[measure]<(data[measure].mean()+num_std_to_include*data[measure].std())], palette="muted",scale='width',cut=0,inner="box")
     #Calculate stats. NOTE: NOT SURE HOW RELIABLE THESE ARE; GETTING INSANELY SMALL P VALUES
-    test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+2*data[measure].std())], x='Parent', y=measure,
+    test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+num_std_to_include*data[measure].std())], x='Parent', y=measure,
                                    box_pairs=[(param_neg_kwd, param_pos_kwd)],
                                    test='t-test_ind', text_format='full',
                                    loc='outside', verbose=2,comparisons_correction=None)
@@ -174,6 +182,9 @@ for measure in measurements_of_interest:
     count=count+1
     plt.close()
 #%% create overall violinplot figure
+#matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+plt.style.use('default')
+
 fig = plt.figure(figsize=(30, 30))
 
 gs = fig.add_gridspec(5, 6)
@@ -200,19 +211,125 @@ for measure in measurements_of_interest:
         index=3,count-18
     elif (count>=24)&(count<30):
         index=4,count-24
-    ax = fig.add_subplot(gs[index])
     sns.set(font_scale=0.5)
+
+    ax = fig.add_subplot(gs[index])
+
     ax.set_ylabel(measure_short[count])
-    ax = sns.violinplot( x='Parent',y=measure,data=data[data[measure]<(data[measure].mean()+2*data[measure].std())], palette="muted",scale='width',cut=0,inner="box")
 
     
+    ax = sns.violinplot( x='Parent',y=measure,data=data[data[measure]<(data[measure].mean()+num_std_to_include*data[measure].std())], palette="muted",scale='width',cut=0,inner="box")
 
-    test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+2*data[measure].std())], x='Parent', y=measure,
+    test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+num_std_to_include*data[measure].std())], x='Parent', y=measure,
                                    box_pairs=[(param_neg_kwd, param_pos_kwd)],
                                    test='t-test_ind', text_format='full',
                                    loc='outside', verbose=2,comparisons_correction=None)
+
     count=count+1
-#need to put a 1 second pause to finish plotting before applying tight layout
+
 matplotlib.pyplot.pause(1)
 fig.tight_layout()
 plt.savefig(os.path.join(figpath,'OverallV5.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')
+plt.close()
+
+#%% Calculate select double-positive combinations for bar charts in PIMO +/- areas
+#Define marker pairs
+pair1=["IBA1","ICAM"]
+pair2=["CD68","ICAM"]
+pair_list=[pair1,pair2]
+pct_dp_PIMO_pos=[]
+pct_dp_PIMO_neg=[]
+pair_name=[]
+for pair in pair_list:
+    print(pair)
+    
+    #slice data to find cells that contain both strings in pair1 as substrings in their "Name" classification parameter
+    dp_cells=data[param_Name].str.contains(pair[0],regex=False)&data[param_Name].str.contains(pair[1],regex=False)
+    #Find number of cells that meet the double positive criteria above AND fall in a PIMO classification. Divide by total number of cells in PIMO classification. Multiply by 100
+    pct_dp_PIMO_pos.append((dp_cells&data[param_Parent].str.contains(param_pos_kwd,regex=False)).sum()/(data[param_Parent].str.contains(param_pos_kwd,regex=False).sum())*100)
+    pct_dp_PIMO_neg.append((dp_cells&data[param_Parent].str.contains(param_neg_kwd,regex=False)).sum()/(data[param_Parent].str.contains(param_neg_kwd,regex=False).sum())*100)
+    pair_name.append(pair[0]+' & '+pair[1])
+#Merge all into a dataframe
+pair_df=pandas.DataFrame(list(zip(pair_name,pct_dp_PIMO_pos,pct_dp_PIMO_neg,[i / j for i, j in zip(pct_dp_PIMO_pos, pct_dp_PIMO_neg)])),columns =['pair_name', 'pct_dp_PIMO_pos','pct_dp_PIMO_neg','ratio']).sort_values('ratio',ascending=False)
+#%% visualize percent double positives from above as clustered bar chart
+#labels = marker_short
+#neg_bar = pos_in_pimo_pos
+#pos_bar = pos_in_pimo_neg
+#matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+plt.style.use('default')
+
+labels=pair_df["pair_name"]
+pos_bar=pair_df["pct_dp_PIMO_pos"]
+neg_bar=pair_df["pct_dp_PIMO_neg"]
+ratios = pair_df["ratio"]
+
+
+x = np.arange(len(labels))  # the label locations
+width = 0.35  # the width of the bars
+
+fig, ax = plt.subplots()
+plt.xticks(rotation=90)
+rects1 = ax.bar(x - width/2, neg_bar, width, label='PIMO Negative')
+rects2 = ax.bar(x + width/2, pos_bar, width, label='PIMO Positive')
+
+#add data labels
+for rect1, rect2, ratio in zip(rects1, rects2, ratios):
+    ratio="{:.2f}".format(ratio)
+    #height = rect2.get_height()
+    height=(max(rect1.get_height(),rect2.get_height()))
+    ax.text(rect2.get_x() + rect2.get_width() * 0, height + 5, ratio,
+            ha='center', va='bottom',rotation='vertical')
+
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax.set_ylabel('Percent Double Positive')
+ax.set_title('Percent double positive scores in PIMO +/- regions')
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+ax.legend()
+
+plt.ylim([0,125])
+fig.tight_layout()
+#ax.bar_label(rects1, padding=3)
+#ax.bar_label(rects2, padding=3)
+
+#fig.tight_layout()
+#plt.savefig(r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\Percent positive scores in PIMO + vs - regions.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+plt.savefig(figpath + r'\Percent double positive scores.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+#plt.close()
+
+#%% TEMPORARY PRUNING OF DATA - KEEP FIRST 1000 ROWS FOR DEBUGGING
+testvar_measures=['Gd(155)_155Gd-PIMO: Cell: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean']
+testvar_measures_short=['PIMO','DNA193','CD68']
+testvar=data[[param_Name,param_Parent]+testvar_measures]
+#testvar_measures=measurements_of_interest
+#testvar_measures_short=measure_short_for_fname
+#testvar=data
+colors=sns.color_palette("tab10")
+#%%PAIRPLOTS
+# only pass data less than 2 standard deviations above the mean 
+# Code below is wrong. measure isn't being iterated upon, meaning its filtering out all measurements such that its the mean + stdev of the last `measure` iterand.
+#Output will still be generated, but technically not correct. Potential solution is to either include outliers and perform no filtering, OR  find a way to modify `data` such that it labels outliers as NaN
+pair = sns.pairplot(data=testvar,vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01))
+#Variants for plotting only positive or negative data
+#pair = sns.pairplot(data=testvar[testvar["Parent"]==param_neg_kwd],vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01),palette=[colors[0]])
+#pair = sns.pairplot(data=testvar[testvar["Parent"]==param_pos_kwd],vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01),palette=[colors[1]])
+
+#pair.map_lower(sns.kdeplot, levels=4, color=".2")
+
+xlabels=testvar_measures_short
+ylabels=testvar_measures_short
+
+for i in range(len(xlabels)):
+    for j in range(len(ylabels)):
+        pair.axes[j,i].xaxis.set_label_text(xlabels[i])
+        pair.axes[j,i].yaxis.set_label_text(ylabels[j])
+        
+
+
+
+plt.savefig(os.path.join(figpath,'PairPlotV2_TESTFIGURE.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')
+#%% text on subplot
+for ax in pair.axes.flat:
+    xmin, xmax, ymin, ymax = ax.axis()
+    ax.text(xmax*0.6, ymax*0.8,'Text Here', fontsize=9,color=colors[0]) #add text
+    ax.text(xmax*0.6, ymax*0.6,'Text Here', fontsize=9,color=colors[1]) #add text
