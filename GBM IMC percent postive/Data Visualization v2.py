@@ -14,6 +14,8 @@ To do:
 
 #%% load libraries
 import pandas
+import pandas as pd
+
 import math
 import matplotlib
 import matplotlib.pyplot as plt
@@ -23,6 +25,8 @@ import seaborn as sns
 from scipy import stats
 from statannot import add_stat_annotation
 import time
+from scipy.stats import spearmanr
+
 #%% Read data
 data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\cell_measurements.csv')
 annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
@@ -295,15 +299,15 @@ fig.tight_layout()
 #fig.tight_layout()
 #plt.savefig(r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\Percent positive scores in PIMO + vs - regions.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 plt.savefig(figpath + r'\Percent double positive scores.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
-#plt.close()
+plt.close()
 
-#%% TEMPORARY PRUNING OF DATA - KEEP FIRST 1000 ROWS FOR DEBUGGING
+#%% TEMPORARY PRUNING OF DATA
 testvar_measures=['Gd(155)_155Gd-PIMO: Cell: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean']
 testvar_measures_short=['PIMO','DNA193','CD68']
 testvar=data[[param_Name,param_Parent]+testvar_measures]
-#testvar_measures=measurements_of_interest
-#testvar_measures_short=measure_short_for_fname
-#testvar=data
+# testvar_measures=measurements_of_interest
+# testvar_measures_short=measure_short_for_fname
+# testvar=data
 colors=sns.color_palette("tab10")
 #%%PAIRPLOTS
 # only pass data less than 2 standard deviations above the mean 
@@ -326,10 +330,66 @@ for i in range(len(xlabels)):
         
 
 
+pair.tight_layout()
+#plt.savefig(os.path.join(figpath,'PairPlotV2_TESTFIGURE.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')
 
-plt.savefig(os.path.join(figpath,'PairPlotV2_TESTFIGURE.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')
-#%% text on subplot
-for ax in pair.axes.flat:
+#%% spearmann correlation
+#PIMO negative
+PIMO_neg = testvar[testvar["Parent"]==param_neg_kwd]
+PIMOneg_corr = []
+
+for i in range(0,len(testvar_measures)):
+    data1 = PIMO_neg[testvar_measures[i]].tolist()
+    for j in range(0,len(testvar_measures)):
+            data2 = PIMO_neg[testvar_measures[j]].tolist()
+            corr, _ = spearmanr(data1, data2)
+            PIMOneg_corr.append(round(corr,3))
+
+
+spearmann_corr = pd.DataFrame(PIMOneg_corr,columns=['PIMO-'])
+
+PIMO_pos = testvar[testvar["Parent"]==param_pos_kwd]
+PIMOpos_corr = []
+
+for i in range(0,len(testvar_measures)):
+    data1 = PIMO_pos[testvar_measures[i]].tolist()
+    for j in range(0,len(testvar_measures)):
+            data2 = PIMO_pos[testvar_measures[j]].tolist()
+            corr, _ = spearmanr(data1, data2)
+            PIMOpos_corr.append(round(corr,3))
+
+
+            
+spearmann_corr = spearmann_corr.assign(PIMOpos= PIMOpos_corr)
+
+all_corr = []
+
+for i in range(0,len(testvar_measures)):
+    data1 = testvar[testvar_measures[i]].tolist()
+    for j in range(0,len(testvar_measures)):
+            data2 = testvar[testvar_measures[j]].tolist()
+            corr, _ = spearmanr(data1, data2)
+            all_corr.append(round(corr,3))
+
+
+
+spearmann_corr = spearmann_corr.assign(All= all_corr)
+
+
+#%% write correlation coefficients on subplot
+for neg_coeff,all_coeff,pos_coeff,ax in zip(spearmann_corr['PIMO-'],spearmann_corr['All'],spearmann_corr['PIMOpos'],pair.axes.flatten()):
     xmin, xmax, ymin, ymax = ax.axis()
-    ax.text(xmax*0.6, ymax*0.8,'Text Here', fontsize=9,color=colors[0]) #add text
-    ax.text(xmax*0.6, ymax*0.6,'Text Here', fontsize=9,color=colors[1]) #add text
+    ax.text(xmax*0.6, ymax*0.6,pos_coeff, fontsize=9,color=colors[1]) #pimo positive
+    ax.text(xmax*0.6, ymax*0.7,all_coeff, fontsize=9,color='black') #all cells
+    ax.text(xmax*0.6, ymax*0.8,neg_coeff, fontsize=9,color=colors[0]) #pimo negative
+
+
+
+#%% Write pairplot
+plt.savefig(os.path.join(figpath,'PairPlotV3_TESTING.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')    
+## TO DO:
+    #Calculate P values from spearman correlation. spearmanr function already does this, just need to store output in a 2nd variable instead of an underscore
+    #If P <0.05, add 1 * next to number plotted on pairplot. If p <0.01, add **. If <0.001, add ***. May change p thresholds depending on how it looks
+    #Create a matrix for each column in spearmann_corr, reshaped to match the shape of the pairplot (should be len(measurements_of_interest) for both the length and height)
+    #Make a seaborn.matrix plot, with each square's color intensity proportional to the spearmann coefficient. Write the coefficient inside the square and add * corresponding to p values, just as it was done for the pairplot.
+    #In total, you should have 3 matrix plots: pimo positive, pimo negative, and all cells
