@@ -10,6 +10,8 @@ To do:
     - pairplots
 
 @author: Mark Zaidi
+Edited by: Phoebe Lombard
+
 """
 
 #%% load libraries
