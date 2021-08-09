@@ -26,10 +26,11 @@ from scipy import stats
 from statannot import add_stat_annotation
 import time
 from scipy.stats import spearmanr
+import winsound
 
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\cell_measurements.csv')
-annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
+data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\cell_measurements.csv')
+annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\annotation_measurements.csv')
 col_names=data.columns
 #%% set constants
 param_Name='Name'
@@ -37,13 +38,15 @@ param_Parent='Parent'
 param_UnusedClass='PathCellObject'
 param_pos_kwd='pimo positive'
 param_neg_kwd='pimo negative'
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures'
+p_thresh=0.05,1e-28,1e-70 #p value thresholds for drawing *,**,*** on plots, respectively
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\figures\all patients'
+seed=69
 #For intensity comparisons, specify number of standard deviations above mean to include intensities below it. Default is 2
 num_std_to_include=2
 #measurement names for Feb 2021 batch
-measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #measurement names for Jun 2021 old batch
-#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #Reset plot styles, if running this script multiple times. CURRENTLY DISABLED AS THIS PREVENTS FIGURE WINDOW POP UP
 #matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 plt.close('all')
@@ -52,9 +55,6 @@ plt.style.use('default')
 #Filter by patient
 # slide_IDs=pandas.unique(data["Image"])
 # data=data[data['Image'].str.contains("39")]
-#%% count the number of cells in different regions of interest
-cells_in_pimo_pos=sum(data.apply(lambda x: 1 if x[param_Parent] == param_pos_kwd else 0 , axis=1))
-cells_in_pimo_neg=sum(data.apply(lambda x: 1 if x[param_Parent] == param_neg_kwd else 0 , axis=1))
 #%% get unique IHC marker names
 #split class name by :, listing all classes a cell belongs to
 df2=data[param_Name].str.split(':',expand=True)
@@ -165,7 +165,7 @@ index=0,0
 #figpath=r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\figures'
 measure_short=[i.split('-', 1)[1] for i in measurements_of_interest]
 measure_short_for_fname=[i.split(':', 1)[0] for i in measure_short]
-
+#%% make individual violin plot
 for measure in measurements_of_interest:
     #set up conditions for filtering cells that belong to a given annotation and are less than the mean + 2 std for the measurement
     cond1_pos= data[param_Parent].str.contains(param_pos_kwd,regex=False)
@@ -302,23 +302,34 @@ plt.savefig(figpath + r'\Percent double positive scores.png',dpi=800,pad_inches=
 plt.close()
 
 #%% TEMPORARY PRUNING OF DATA
+measure_short=[i.split('-', 1)[1] for i in measurements_of_interest]
+measure_short_for_fname=[i.split(':', 1)[0] for i in measure_short]
+
 testvar_measures=['Gd(155)_155Gd-PIMO: Cell: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean']
 testvar_measures_short=['PIMO','DNA193','CD68']
+#testvar_measures=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean']
+#testvar_measures_short=['aSMA','GFAP','CD31']
 testvar=data[[param_Name,param_Parent]+testvar_measures]
-# testvar_measures=measurements_of_interest
-# testvar_measures_short=measure_short_for_fname
-# testvar=data
+
+testvar_measures=measurements_of_interest
+testvar_measures_short=measure_short_for_fname
+testvar=data
 colors=sns.color_palette("tab10")
 #%%PAIRPLOTS
 # only pass data less than 2 standard deviations above the mean 
 # Code below is wrong. measure isn't being iterated upon, meaning its filtering out all measurements such that its the mean + stdev of the last `measure` iterand.
 #Output will still be generated, but technically not correct. Potential solution is to either include outliers and perform no filtering, OR  find a way to modify `data` such that it labels outliers as NaN
-pair = sns.pairplot(data=testvar,vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01))
+#pair = sns.pairplot(data=testvar,vars=testvar_measures, hue='Parent',diag_kind='kde',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01))
+start_time = time.time()
+plt.style.use('default')
+plt.rcParams.update({'font.size': 5})
+pair = sns.pairplot(data=testvar.sample(n=10000,random_state=seed).sort_values([param_Parent]),vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=0.01),diag_kws=dict(common_norm=False))
+print('It took', time.time()-start_time, 'seconds.')
 #Variants for plotting only positive or negative data
 #pair = sns.pairplot(data=testvar[testvar["Parent"]==param_neg_kwd],vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01),palette=[colors[0]])
 #pair = sns.pairplot(data=testvar[testvar["Parent"]==param_pos_kwd],vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01),palette=[colors[1]])
-
-#pair.map_lower(sns.kdeplot, levels=4, color=".2")
+# #%%
+# #pair.map_lower(sns.kdeplot, levels=4, color=".2")
 
 xlabels=testvar_measures_short
 ylabels=testvar_measures_short
@@ -330,60 +341,92 @@ for i in range(len(xlabels)):
         
 
 
+matplotlib.pyplot.pause(1)
+pair.fig.set_figheight(20)
+pair.fig.set_figwidth(20)
 pair.tight_layout()
 #plt.savefig(os.path.join(figpath,'PairPlotV2_TESTFIGURE.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')
-
-#%% spearmann correlation
+#%% spearmann correlation and p value calculation
 #PIMO negative
 PIMO_neg = testvar[testvar["Parent"]==param_neg_kwd]
 PIMOneg_corr = []
+PIMOneg_p = []
 
 for i in range(0,len(testvar_measures)):
     data1 = PIMO_neg[testvar_measures[i]].tolist()
     for j in range(0,len(testvar_measures)):
             data2 = PIMO_neg[testvar_measures[j]].tolist()
-            corr, _ = spearmanr(data1, data2)
+            corr, pval = spearmanr(data1, data2)
             PIMOneg_corr.append(round(corr,3))
+            PIMOneg_p.append(pval)
 
 
-spearmann_corr = pd.DataFrame(PIMOneg_corr,columns=['PIMO-'])
+spearmann_corr = pd.DataFrame(PIMOneg_corr,columns=['PIMOneg'])
+p_values = pd.DataFrame(PIMOneg_p,columns=['PIMOneg'])
 
 PIMO_pos = testvar[testvar["Parent"]==param_pos_kwd]
 PIMOpos_corr = []
+PIMOpos_p = []
 
 for i in range(0,len(testvar_measures)):
     data1 = PIMO_pos[testvar_measures[i]].tolist()
     for j in range(0,len(testvar_measures)):
             data2 = PIMO_pos[testvar_measures[j]].tolist()
-            corr, _ = spearmanr(data1, data2)
+            corr, pval = spearmanr(data1, data2)
             PIMOpos_corr.append(round(corr,3))
+            PIMOpos_p.append(pval)
 
 
             
 spearmann_corr = spearmann_corr.assign(PIMOpos= PIMOpos_corr)
+p_values = p_values.assign(PIMOpos = PIMOpos_p)
 
 all_corr = []
+all_p = []
 
 for i in range(0,len(testvar_measures)):
     data1 = testvar[testvar_measures[i]].tolist()
     for j in range(0,len(testvar_measures)):
             data2 = testvar[testvar_measures[j]].tolist()
-            corr, _ = spearmanr(data1, data2)
+            corr, pval = spearmanr(data1, data2)
             all_corr.append(round(corr,3))
-
+            all_p.append(pval)
 
 
 spearmann_corr = spearmann_corr.assign(All= all_corr)
+p_values = p_values.assign(All = all_p)
 
+#MARK NOTE: disabled rounding of p value to 3 significant figures. P values can be on the order of 10^-23 or smaller, and rounding will just make everything 0.
+#Might also need to reevaluate thresholds for what is *, **, and *** because these p values are so small.
 
 #%% write correlation coefficients on subplot
-for neg_coeff,all_coeff,pos_coeff,ax in zip(spearmann_corr['PIMO-'],spearmann_corr['All'],spearmann_corr['PIMOpos'],pair.axes.flatten()):
+
+
+##MARK NOTE: See if you can merge the *s with the original text from the first for loop in this block, rather than write it out separately.
+#Makes it a bit cleaner and reduces ax.write operations, which is more apparent when processing the full ~18 measurements.
+for neg_coeff,all_coeff,pos_coeff,ax,neg_p,all_p,pos_p in zip(spearmann_corr['PIMOneg'],spearmann_corr['All'],spearmann_corr['PIMOpos'],pair.axes.flatten(),p_values['PIMOneg'],p_values['All'],p_values['PIMOpos']):
     xmin, xmax, ymin, ymax = ax.axis()
-    ax.text(xmax*0.6, ymax*0.6,pos_coeff, fontsize=9,color=colors[1]) #pimo positive
-    ax.text(xmax*0.6, ymax*0.7,all_coeff, fontsize=9,color='black') #all cells
-    ax.text(xmax*0.6, ymax*0.8,neg_coeff, fontsize=9,color=colors[0]) #pimo negative
-
-
+    print(['pos_p' + str(pos_p)])
+    if (pos_p<p_thresh[0])&(pos_p>=p_thresh[1]):
+        ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '*', fontsize=5,color=colors[1]) #pimo positive
+    elif (pos_p<p_thresh[1])&(pos_p>=p_thresh[2]):
+        ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '**', fontsize=5,color=colors[1]) #pimo positive
+    elif (pos_p<p_thresh[2]):
+        ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '***', fontsize=5,color=colors[1]) #pimo positive
+    
+    if (all_p<p_thresh[0])&(all_p>=p_thresh[1]):
+        ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '*', fontsize=5,color='black') #all cells
+    elif (all_p<p_thresh[1])&(all_p>=p_thresh[2]):
+        ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '**', fontsize=5,color='black') #all cells
+    elif (all_p<p_thresh[2]):
+        ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '***', fontsize=5,color='black') #all cells
+       
+    if (neg_p<p_thresh[0])&(neg_p>=p_thresh[1]):
+        ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '*', fontsize=5,color=colors[0]) #pimo negitive
+    elif (neg_p<p_thresh[1])&(neg_p>=p_thresh[2]):
+        ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '**', fontsize=5,color=colors[0]) #pimo negitive
+    elif (neg_p<p_thresh[2]):
+        ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '***', fontsize=5,color=colors[0]) #pimo negitive
 
 #%% Write pairplot
 plt.savefig(os.path.join(figpath,'PairPlotV3_TESTING.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')    
@@ -393,3 +436,36 @@ plt.savefig(os.path.join(figpath,'PairPlotV3_TESTING.png'),dpi=300,pad_inches=0.
     #Create a matrix for each column in spearmann_corr, reshaped to match the shape of the pairplot (should be len(measurements_of_interest) for both the length and height)
     #Make a seaborn.matrix plot, with each square's color intensity proportional to the spearmann coefficient. Write the coefficient inside the square and add * corresponding to p values, just as it was done for the pairplot.
     #In total, you should have 3 matrix plots: pimo positive, pimo negative, and all cells
+    
+winsound.Beep(440, 1000)
+#%% HEATMAPS
+##heatmap dimensions:
+    #use testvar_measures for the temp short data
+    #use measurements_of_interest for real deal
+dims = len(testvar_measures)
+
+#reshape the spearrmann correlations (each column in spearmann_corr) into 2D arrays to be used by seaborn heatmaps
+PIMOneg_2D = np.reshape(PIMOneg_corr, (dims, dims))
+PIMOpos_2D = np.reshape(PIMOpos_corr, (dims, dims))
+allcorr_2D = np.reshape(all_corr, (dims, dims))
+
+#plot the heatmaps
+fig, axes = plt.subplots(1, 3, figsize=(20,5))
+fig.suptitle('Heatmaps')
+
+# PIMO negative
+sns.heatmap(ax=axes[0],data=PIMOneg_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short)
+axes[0].set_title('PIMO neg')
+
+# PIMO positive
+sns.heatmap(ax=axes[1],data=PIMOpos_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short)
+axes[1].set_title('PIMO pos')
+
+# All
+sns.heatmap(ax=axes[2],data=allcorr_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short)
+axes[2].set_title('All')
+
+## *STILL NEED TO ADD THE MARKERS FOR P VALUES* on the heatmaps
+
+#write heatmaps
+plt.savefig(os.path.join(figpath,'Heatmaps_TEST.png'),dpi=300,pad_inches=0.1,bbox_inches='tight') 
