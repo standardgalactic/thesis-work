@@ -29,7 +29,6 @@ from statannot import add_stat_annotation
 import time
 from scipy.stats import spearmanr
 import winsound
-
 #%% Read data
 data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\cell_measurements.csv')
 annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\annotation_measurements.csv')
@@ -41,6 +40,8 @@ param_UnusedClass='PathCellObject'
 param_pos_kwd='pimo positive'
 param_neg_kwd='pimo negative'
 p_thresh=0.05,1e-28,1e-70 #p value thresholds for drawing *,**,*** on plots, respectively
+
+
 figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\figures\all patients'
 seed=69
 #For intensity comparisons, specify number of standard deviations above mean to include intensities below it. Default is 2
@@ -307,11 +308,11 @@ plt.close()
 measure_short=[i.split('-', 1)[1] for i in measurements_of_interest]
 measure_short_for_fname=[i.split(':', 1)[0] for i in measure_short]
 
-testvar_measures=['Gd(155)_155Gd-PIMO: Cell: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean']
-testvar_measures_short=['PIMO','DNA193','CD68']
+# testvar_measures=['Gd(155)_155Gd-PIMO: Cell: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean']
+# testvar_measures_short=['PIMO','DNA193','CD68']
 #testvar_measures=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean']
 #testvar_measures_short=['aSMA','GFAP','CD31']
-testvar=data[[param_Name,param_Parent]+testvar_measures]
+# testvar=data[[param_Name,param_Parent]+testvar_measures]
 
 testvar_measures=measurements_of_interest
 testvar_measures_short=measure_short_for_fname
@@ -343,7 +344,7 @@ for i in range(len(xlabels)):
         
 
 
-matplotlib.pyplot.pause(1)
+matplotlib.pyplot.pause(10)
 pair.fig.set_figheight(20)
 pair.fig.set_figwidth(20)
 pair.tight_layout()
@@ -406,9 +407,11 @@ p_values = p_values.assign(All = all_p)
 
 ##MARK NOTE: See if you can merge the *s with the original text from the first for loop in this block, rather than write it out separately.
 #Makes it a bit cleaner and reduces ax.write operations, which is more apparent when processing the full ~18 measurements.
+
+# ADD CASE FOR NO STATISTICAL SIGNIFICANCE***********************************************************************************************************************
+
 for neg_coeff,all_coeff,pos_coeff,ax,neg_p,all_p,pos_p in zip(spearmann_corr['PIMOneg'],spearmann_corr['All'],spearmann_corr['PIMOpos'],pair.axes.flatten(),p_values['PIMOneg'],p_values['All'],p_values['PIMOpos']):
     xmin, xmax, ymin, ymax = ax.axis()
-    print(['pos_p' + str(pos_p)])
     if (pos_p<p_thresh[0])&(pos_p>=p_thresh[1]):
         ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '*', fontsize=5,color=colors[1]) #pimo positive
     elif (pos_p<p_thresh[1])&(pos_p>=p_thresh[2]):
@@ -452,22 +455,26 @@ PIMOpos_2D = np.reshape(PIMOpos_corr, (dims, dims))
 allcorr_2D = np.reshape(all_corr, (dims, dims))
 
 #plot the heatmaps
-fig, axes = plt.subplots(1, 3, figsize=(20,5))
-fig.suptitle('Heatmaps')
+fig, axes = plt.subplots(1, 3, figsize=(50,50))
+#fig.suptitle('Heatmaps')
 
 # PIMO negative
-sns.heatmap(ax=axes[0],data=PIMOneg_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short)
+sns.heatmap(ax=axes[0],data=PIMOneg_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
 axes[0].set_title('PIMO neg')
+axes[0].set_yticklabels(testvar_measures_short,rotation=0)
 
 # PIMO positive
-sns.heatmap(ax=axes[1],data=PIMOpos_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short)
+sns.heatmap(ax=axes[1],data=PIMOpos_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
 axes[1].set_title('PIMO pos')
-
+axes[1].set_yticklabels(testvar_measures_short,rotation=0)
 # All
-sns.heatmap(ax=axes[2],data=allcorr_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short)
+sns.heatmap(ax=axes[2],data=allcorr_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
 axes[2].set_title('All')
-
+axes[2].set_yticklabels(testvar_measures_short,rotation=0)
 ## *STILL NEED TO ADD THE MARKERS FOR P VALUES* on the heatmaps
+## TO DO: SORT HEATMAP GENES FROM MOST NEGATIVE TO MOST POSITIVE CORRELATION
 
 #write heatmaps
+plt.tight_layout()
+matplotlib.pyplot.pause(1)
 plt.savefig(os.path.join(figpath,'Heatmaps_TEST.png'),dpi=300,pad_inches=0.1,bbox_inches='tight') 
