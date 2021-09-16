@@ -30,7 +30,7 @@ import time
 from scipy.stats import spearmanr
 import winsound
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\cell_measurements.csv')
+data=pandas.read_csv(r'C:\Users\Mark Zaidi\Downloads\cell_measurementsJune2021.csv')
 annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\annotation_measurements.csv')
 col_names=data.columns
 #%% set constants
@@ -241,7 +241,7 @@ plt.close()
 
 #%% Calculate select double-positive combinations for bar charts in PIMO +/- areas
 #Define marker pairs
-pair1=["IBA1","ICAM"]
+pair1=["Iba1","ICAM"]
 pair2=["CD68","ICAM"]
 pair_list=[pair1,pair2]
 pct_dp_PIMO_pos=[]
@@ -257,6 +257,8 @@ for pair in pair_list:
     pct_dp_PIMO_neg.append((dp_cells&data[param_Parent].str.contains(param_neg_kwd,regex=False)).sum()/(data[param_Parent].str.contains(param_neg_kwd,regex=False).sum())*100)
     pair_name.append(pair[0]+' & '+pair[1])
 #Merge all into a dataframe
+if pct_dp_PIMO_neg.count(0)>0:
+    raise ValueError('Denominator pct_dp_PIMO_neg is 0, meaning there are no double negative cells. Please verify pair1 and pair2 are present in dataset')
 pair_df=pandas.DataFrame(list(zip(pair_name,pct_dp_PIMO_pos,pct_dp_PIMO_neg,[i / j for i, j in zip(pct_dp_PIMO_pos, pct_dp_PIMO_neg)])),columns =['pair_name', 'pct_dp_PIMO_pos','pct_dp_PIMO_neg','ratio']).sort_values('ratio',ascending=False)
 #%% visualize percent double positives from above as clustered bar chart
 #labels = marker_short
