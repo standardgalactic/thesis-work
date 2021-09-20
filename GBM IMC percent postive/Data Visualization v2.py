@@ -30,8 +30,8 @@ import time
 from scipy.stats import spearmanr
 import winsound
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Downloads\cell_measurementsJune2021.csv')
-annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\annotation_measurements.csv')
+data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\cell_measurements.csv')
+annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
 col_names=data.columns
 #%% set constants
 param_Name='Name'
@@ -42,14 +42,14 @@ param_neg_kwd='pimo negative'
 p_thresh=0.05,1e-28,1e-70 #p value thresholds for drawing *,**,*** on plots, respectively
 
 
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Jun 2021 - Old IMC data\figures\all patients'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures'
 seed=69
 #For intensity comparisons, specify number of standard deviations above mean to include intensities below it. Default is 2
 num_std_to_include=2
 #measurement names for Feb 2021 batch
-#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #measurement names for Jun 2021 old batch
-measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #Reset plot styles, if running this script multiple times. CURRENTLY DISABLED AS THIS PREVENTS FIGURE WINDOW POP UP
 #matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 plt.close('all')
@@ -420,13 +420,18 @@ for neg_coeff,all_coeff,pos_coeff,ax,neg_p,all_p,pos_p in zip(spearmann_corr['PI
         ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '**', fontsize=5,color=colors[1]) #pimo positive
     elif (pos_p<p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '***', fontsize=5,color=colors[1]) #pimo positive
-    
+    else:
+        ax.text(xmax*0.6, ymax*0.6,str(pos_coeff), fontsize=5,color=colors[1])
+        
     if (all_p<p_thresh[0])&(all_p>=p_thresh[1]):
         ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '*', fontsize=5,color='black') #all cells
     elif (all_p<p_thresh[1])&(all_p>=p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '**', fontsize=5,color='black') #all cells
     elif (all_p<p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '***', fontsize=5,color='black') #all cells
+    else:
+        ax.text(xmax*0.6, ymax*0.7,str(all_coeff), fontsize=5,color='black')
+        
        
     if (neg_p<p_thresh[0])&(neg_p>=p_thresh[1]):
         ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '*', fontsize=5,color=colors[0]) #pimo negitive
@@ -434,9 +439,14 @@ for neg_coeff,all_coeff,pos_coeff,ax,neg_p,all_p,pos_p in zip(spearmann_corr['PI
         ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '**', fontsize=5,color=colors[0]) #pimo negitive
     elif (neg_p<p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '***', fontsize=5,color=colors[0]) #pimo negitive
-
+    else:
+        ax.text(xmax*0.6, ymax*0.8,str(neg_coeff), fontsize=5,color=colors[0]) #pimo negitive
+        
+pair.fig.set_figheight(20)
+pair.fig.set_figwidth(20)
+plt.tight_layout()
 #%% Write pairplot
-plt.savefig(os.path.join(figpath,'PairPlotV3_TESTING.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')    
+plt.savefig(os.path.join(figpath,'PairPlotV4_test.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')    
 ## TO DO:
     #Calculate P values from spearman correlation. spearmanr function already does this, just need to store output in a 2nd variable instead of an underscore
     #If P <0.05, add 1 * next to number plotted on pairplot. If p <0.01, add **. If <0.001, add ***. May change p thresholds depending on how it looks
@@ -445,6 +455,8 @@ plt.savefig(os.path.join(figpath,'PairPlotV3_TESTING.png'),dpi=300,pad_inches=0.
     #In total, you should have 3 matrix plots: pimo positive, pimo negative, and all cells
     
 winsound.Beep(440, 1000)
+plt.close()
+
 #%% HEATMAPS
 ##heatmap dimensions:
     #use testvar_measures for the temp short data
@@ -456,27 +468,43 @@ PIMOneg_2D = np.reshape(PIMOneg_corr, (dims, dims))
 PIMOpos_2D = np.reshape(PIMOpos_corr, (dims, dims))
 allcorr_2D = np.reshape(all_corr, (dims, dims))
 
-#plot the heatmaps
+#Convert 2D heatmap arrays into dataframe with labelled axes
+df_PIMOneg_2D = pandas.DataFrame(data=PIMOneg_2D,index=testvar_measures_short,columns=testvar_measures_short)
+df_PIMOpos_2D = pandas.DataFrame(data=PIMOpos_2D,index=testvar_measures_short,columns=testvar_measures_short)
+df_allcorr_2D = pandas.DataFrame(data=allcorr_2D,index=testvar_measures_short,columns=testvar_measures_short)
+#stick PIMO to the start
+temp=testvar_measures_short[:]
+temp.remove('PIMO')
+temp.insert(0, 'PIMO')
+#reorder dataframes with PIMO at the start
+df_allcorr_2D=df_allcorr_2D.reindex(temp)
+df_allcorr_2D=df_allcorr_2D.reindex(columns=temp).sort_values('PIMO',ascending=False)
+#now, sort the columns by the same way the rows were sorted
+new_order=df_allcorr_2D.index
+df_allcorr_2D=df_allcorr_2D.reindex(columns=new_order)
+#apply this order to the df_PIMOneg_2D and df_PIMOpos_2D dataframes
+df_PIMOneg_2D=df_PIMOneg_2D.reindex(columns=new_order).reindex(index=new_order)
+df_PIMOpos_2D=df_PIMOpos_2D.reindex(columns=new_order).reindex(index=new_order)
+#%% plot sorted heatmaps
 fig, axes = plt.subplots(1, 3, figsize=(50,50))
 #fig.suptitle('Heatmaps')
-
+sns.set(font_scale=0.7)
 # PIMO negative
-sns.heatmap(ax=axes[0],data=PIMOneg_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
-axes[0].set_title('PIMO neg')
-axes[0].set_yticklabels(testvar_measures_short,rotation=0)
+sns.heatmap(ax=axes[0],data=df_allcorr_2D,annot=True, xticklabels=new_order, yticklabels=new_order,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
+axes[0].set_title('All')
+axes[0].set_yticklabels(new_order,rotation=0)
 
 # PIMO positive
-sns.heatmap(ax=axes[1],data=PIMOpos_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
-axes[1].set_title('PIMO pos')
-axes[1].set_yticklabels(testvar_measures_short,rotation=0)
+sns.heatmap(ax=axes[1],data=df_PIMOneg_2D,annot=True, xticklabels=new_order, yticklabels=new_order,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
+axes[1].set_title('PIMO Negative')
+axes[1].set_yticklabels(new_order,rotation=0)
+
 # All
-sns.heatmap(ax=axes[2],data=allcorr_2D,annot=True, xticklabels=testvar_measures_short, yticklabels=testvar_measures_short,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
-axes[2].set_title('All')
-axes[2].set_yticklabels(testvar_measures_short,rotation=0)
-## *STILL NEED TO ADD THE MARKERS FOR P VALUES* on the heatmaps
-## TO DO: SORT HEATMAP GENES FROM MOST NEGATIVE TO MOST POSITIVE CORRELATION
+sns.heatmap(ax=axes[2],data=df_PIMOpos_2D,annot=True, xticklabels=new_order, yticklabels=new_order,cmap='bwr',center=0,vmin=-0.8,vmax=0.8)
+axes[2].set_title('PIMO Positive')
+axes[2].set_yticklabels(new_order,rotation=0)
 
 #write heatmaps
 plt.tight_layout()
 matplotlib.pyplot.pause(1)
-plt.savefig(os.path.join(figpath,'Heatmaps_TEST.png'),dpi=300,pad_inches=0.1,bbox_inches='tight') 
+plt.savefig(os.path.join(figpath,'Heatmaps_v2.png'),dpi=300,pad_inches=0.1,bbox_inches='tight') 
