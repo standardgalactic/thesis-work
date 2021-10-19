@@ -5,9 +5,8 @@ V2 contains less hardcoded values throughout the code, and performs statistical 
 To do:
     - add vessel distance analysis
     - calculate microvessel density across areas (MVD)
-    - optional data filtering by value
-    - support for grouping patients by supplementary data (e.g. who is IDH wt or mutant)
-    - pairplots
+
+
 
 @author: Mark Zaidi
 Edited by: Phoebe Lombard
@@ -30,7 +29,7 @@ import time
 from scipy.stats import spearmanr
 import winsound
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\cell_measurements.csv')
+data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\despeckle_cell_measurements.csv')
 annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
 col_names=data.columns
 #%% set constants
@@ -42,22 +41,28 @@ param_neg_kwd='pimo negative'
 p_thresh=0.05,1e-28,1e-70 #p value thresholds for drawing *,**,*** on plots, respectively
 
 
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures\despeckled'
 seed=69
 #For intensity comparisons, specify number of standard deviations above mean to include intensities below it. Default is 2
 num_std_to_include=2
+
 #measurement names for Feb 2021 batch
-measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Median','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #measurement names for Jun 2021 old batch
-#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Median','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Median','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Median','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurements names for Aug 2021 batch
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Lu(175)_175Lu-CXCR4: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #Reset plot styles, if running this script multiple times. CURRENTLY DISABLED AS THIS PREVENTS FIGURE WINDOW POP UP
 #matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 plt.close('all')
 plt.style.use('default')
+#sort data such that PIMO negative cells show up first, gives a consistent order to violin plots
+data.sort_values(param_Parent,inplace=True)
 #%%Optional filtering of data
 #Filter by patient
 # slide_IDs=pandas.unique(data["Image"])
-# data=data[data['Image'].str.contains("39")]
+# slide_IDs.sort()
+# data=data[data['Image'].str.contains("28")]
 #%% get unique IHC marker names
 #split class name by :, listing all classes a cell belongs to
 df2=data[param_Name].str.split(':',expand=True)
@@ -101,6 +106,9 @@ for marker in marker_short:
         count=count+1
 #%% visualize percent positive as clustered bar chart
 pct_pos_df=pandas.DataFrame([marker_short,pos_in_pimo_pos,pos_in_pimo_neg,[i / j for i, j in zip(pos_in_pimo_pos, pos_in_pimo_neg)]]).transpose().sort_values(3,ascending=False)
+#write dataframe to csv. columns are: marker, percent positive in pimo pos, percent positive in pimo neg, and pos to neg ratio
+pct_pos_df.to_csv(figpath + r'\Percent positive scores in PIMO + vs - regions.csv')
+
 #labels = marker_short
 #neg_bar = pos_in_pimo_pos
 #pos_bar = pos_in_pimo_neg
@@ -182,8 +190,8 @@ for measure in measurements_of_interest:
     test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+num_std_to_include*data[measure].std())], x='Parent', y=measure,
                                    box_pairs=[(param_neg_kwd, param_pos_kwd)],
                                    test='t-test_ind', text_format='full',
-                                   loc='outside', verbose=2,comparisons_correction=None)
-    print(measure,stats.ttest_ind(neg_selection,pos_selection,equal_var=False),'\n')
+                                   loc='outside', verbose=0,comparisons_correction=None)
+    #print(measure,stats.ttest_ind(neg_selection,pos_selection,equal_var=False),'\n')
 
     plt.savefig(os.path.join(figpath,measure_short_for_fname[count]+'.png'),dpi=800,pad_inches=0.1,bbox_inches='tight')
     count=count+1
@@ -207,7 +215,7 @@ for measure in measurements_of_interest:
     # count=count+1
     # plt.close()
     ##Violin subplot code below
-    print(count)
+    #print(count)
     if count<6:
         index=0,count
     elif (count>=6)&(count<12):
@@ -230,7 +238,7 @@ for measure in measurements_of_interest:
     test_results = add_stat_annotation(ax, data=data[data[measure]<(data[measure].mean()+num_std_to_include*data[measure].std())], x='Parent', y=measure,
                                    box_pairs=[(param_neg_kwd, param_pos_kwd)],
                                    test='t-test_ind', text_format='full',
-                                   loc='outside', verbose=2,comparisons_correction=None)
+                                   loc='outside', verbose=0,comparisons_correction=None)
 
     count=count+1
 
@@ -238,8 +246,8 @@ matplotlib.pyplot.pause(1)
 fig.tight_layout()
 plt.savefig(os.path.join(figpath,'OverallV5.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')
 plt.close()
-
 #%% Calculate select double-positive combinations for bar charts in PIMO +/- areas
+"""
 #Define marker pairs
 pair1=["Iba1","ICAM"]
 pair2=["CD68","ICAM"]
@@ -302,10 +310,9 @@ fig.tight_layout()
 #ax.bar_label(rects2, padding=3)
 
 #fig.tight_layout()
-#plt.savefig(r'C:\Users\Mark Zaidi\Documents\Python Scripts\GBM IMC percent postive\Percent positive scores in PIMO + vs - regions.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 plt.savefig(figpath + r'\Percent double positive scores.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 plt.close()
-
+"""
 #%% TEMPORARY PRUNING OF DATA
 measure_short=[i.split('-', 1)[1] for i in measurements_of_interest]
 measure_short_for_fname=[i.split(':', 1)[0] for i in measure_short]
@@ -328,8 +335,8 @@ colors=sns.color_palette("tab10")
 start_time = time.time()
 plt.style.use('default')
 plt.rcParams.update({'font.size': 5})
-pair = sns.pairplot(data=testvar.sample(n=10000,random_state=seed).sort_values([param_Parent]),vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=0.01),diag_kws=dict(common_norm=False))
-print('It took', time.time()-start_time, 'seconds.')
+pair = sns.pairplot(data=testvar.sample(n=1000,random_state=seed).sort_values([param_Parent]),vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=0.01),diag_kws=dict(common_norm=False))
+print('It took', time.time()-start_time, 'seconds for the pairplot.')
 #Variants for plotting only positive or negative data
 #pair = sns.pairplot(data=testvar[testvar["Parent"]==param_neg_kwd],vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01),palette=[colors[0]])
 #pair = sns.pairplot(data=testvar[testvar["Parent"]==param_pos_kwd],vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01),palette=[colors[1]])
@@ -454,7 +461,7 @@ plt.savefig(os.path.join(figpath,'PairPlotV4_test.png'),dpi=300,pad_inches=0.1,b
     #Make a seaborn.matrix plot, with each square's color intensity proportional to the spearmann coefficient. Write the coefficient inside the square and add * corresponding to p values, just as it was done for the pairplot.
     #In total, you should have 3 matrix plots: pimo positive, pimo negative, and all cells
     
-winsound.Beep(440, 1000)
+#winsound.Beep(440, 1000)
 plt.close()
 
 #%% HEATMAPS
@@ -507,4 +514,6 @@ axes[2].set_yticklabels(new_order,rotation=0)
 #write heatmaps
 plt.tight_layout()
 matplotlib.pyplot.pause(1)
-plt.savefig(os.path.join(figpath,'Heatmaps_v2.png'),dpi=300,pad_inches=0.1,bbox_inches='tight') 
+plt.savefig(os.path.join(figpath,'Heatmaps_v2.png'),dpi=300,pad_inches=0.1,bbox_inches='tight')
+plt.close()
+ 
