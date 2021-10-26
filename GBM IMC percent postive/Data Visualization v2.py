@@ -29,8 +29,11 @@ import time
 from scipy.stats import spearmanr
 import winsound
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\despeckle_cell_measurements.csv')
-annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
+csv_path=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\August 16 2021 - updated panel\cell_measurements.csv'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\August 16 2021 - updated panel\figures\panel 3 figures and tables\all_patients'
+
+data=pandas.read_csv(csv_path)
+#annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
 col_names=data.columns
 #%% set constants
 param_Name='Name'
@@ -39,19 +42,22 @@ param_UnusedClass='PathCellObject'
 param_pos_kwd='pimo positive'
 param_neg_kwd='pimo negative'
 p_thresh=0.05,1e-28,1e-70 #p value thresholds for drawing *,**,*** on plots, respectively
+measures_to_drop=['DNA193','DNA191'] #remove these from any percent positive or intensity comparisons
 
 
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures\despeckled'
 seed=69
 #For intensity comparisons, specify number of standard deviations above mean to include intensities below it. Default is 2
 num_std_to_include=2
 
 #measurement names for Feb 2021 batch
-measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #measurement names for Jun 2021 old batch
 #measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(148)_148Nd-Tau: Cell: Mean','Sm(149)_149Sm-CD11b: Cell: Mean','Nd(150)_150Nd-PD-L1: Cell: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Sm(154)_154Sm-GPG95: Cell: Mean','Gd(155)_155Gd-Pimo: Cell: Mean','Gd(156)_156Gd-CD4: Cell: Mean','Gd(158)_158Gd-pSTAT3: Nucleus: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-NGFR: Cell: Mean','Dy(161)_161Dy-CD20: Cell: Mean','Dy(162)_162Dy-CD8a: Cell: Mean','Dy(163)_163Dy-CD163: Cell: Mean','Ho(165)_165Ho-CD45RO: Cell: Mean','Er(167)_167Er-GranzymeB: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Tm(169)_169Tm-Synaptophysin: Cell: Mean','Er(170)_170Er-CD3: Cell: Mean','Yb(172)_172Yb-CD57: Cell: Mean','Yb(173)_173Yb-S100: Cell: Mean','Lu(175)_175Lu-pS6: Cell: Mean','Yb(176)_176Yb-Iba1: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
 #measurements names for Aug 2021 batch
-#measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Lu(175)_175Lu-CXCR4: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+measurements_of_interest=['Pr(141)_141Pr-aSMA: Cell: Mean','Nd(143)_143Nd-GFAP: Cell: Mean','Nd(145)_145Nd-CD31: Cell: Mean','Nd(146)_146Nd-Nestin: Cell: Mean','Nd(150)_150Nd-SOX2: Nucleus: Mean','Eu(151)_151Eu-CA9: Cell: Mean','Sm(152)_152Sm-CD45: Cell: Mean','Eu(153)_153Eu-VCAM: Cell: Mean','Gd(155)_155Gd-PIMO: Cell: Mean','Tb(159)_159Tb-CD68: Cell: Mean','Gd(160)_160Gd-GLUT1: Cell: Mean','Dy(163)_163Dy-HK2: Cell: Mean','Dy(164)_164Dy-LDHA: Cell: Mean','Er(168)_168Er-Ki67: Nucleus: Mean','Er(170)_170Er-IBA1: Cell: Mean','Yb(173)_173Yb-TMHistone: Nucleus: Mean','Yb(174)_174Yb-ICAM: Cell: Mean','Lu(175)_175Lu-CXCR4: Cell: Mean','Ir(191)_191Ir-DNA191: Nucleus: Mean','Ir(193)_193Ir-DNA193: Nucleus: Mean']
+#drop specific measurements
+for measure in measures_to_drop:
+    measurements_of_interest[:] = [x for x in measurements_of_interest if measure not in x]
 #Reset plot styles, if running this script multiple times. CURRENTLY DISABLED AS THIS PREVENTS FIGURE WINDOW POP UP
 #matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 plt.close('all')
@@ -70,6 +76,9 @@ df2=data[param_Name].str.split(':',expand=True)
 df3=pandas.unique(df2[df2.columns].values.ravel('K'))
 df3=df3[(df3 != param_UnusedClass)]
 marker_list = [x for x in df3 if x != None]
+#drop specific markers
+for measure in measures_to_drop:
+    marker_list[:] = [x for x in marker_list if measure not in x]
 #remove spaces, cast to list
 marker_list=[x.strip(' ') for x in marker_list]
 marker_list=list(set(marker_list))
@@ -468,6 +477,9 @@ plt.close()
 ##heatmap dimensions:
     #use testvar_measures for the temp short data
     #use measurements_of_interest for real deal
+#PIMO_kwd='PIMO'
+PIMO_kwd='Pimo'
+
 dims = len(testvar_measures)
 
 #reshape the spearrmann correlations (each column in spearmann_corr) into 2D arrays to be used by seaborn heatmaps
@@ -481,17 +493,48 @@ df_PIMOpos_2D = pandas.DataFrame(data=PIMOpos_2D,index=testvar_measures_short,co
 df_allcorr_2D = pandas.DataFrame(data=allcorr_2D,index=testvar_measures_short,columns=testvar_measures_short)
 #stick PIMO to the start
 temp=testvar_measures_short[:]
-temp.remove('PIMO')
-temp.insert(0, 'PIMO')
+temp.remove(PIMO_kwd)
+temp.insert(0, PIMO_kwd)
 #reorder dataframes with PIMO at the start
 df_allcorr_2D=df_allcorr_2D.reindex(temp)
-df_allcorr_2D=df_allcorr_2D.reindex(columns=temp).sort_values('PIMO',ascending=False)
+df_allcorr_2D=df_allcorr_2D.reindex(columns=temp).sort_values(PIMO_kwd,ascending=False)
 #now, sort the columns by the same way the rows were sorted
 new_order=df_allcorr_2D.index
 df_allcorr_2D=df_allcorr_2D.reindex(columns=new_order)
 #apply this order to the df_PIMOneg_2D and df_PIMOpos_2D dataframes
 df_PIMOneg_2D=df_PIMOneg_2D.reindex(columns=new_order).reindex(index=new_order)
 df_PIMOpos_2D=df_PIMOpos_2D.reindex(columns=new_order).reindex(index=new_order)
+#Write out corr .csv
+df_allcorr_2D.to_csv(figpath + r'\all_corr.csv')
+df_PIMOneg_2D.to_csv(figpath + r'\PIMOneg_corr.csv')
+df_PIMOpos_2D.to_csv(figpath + r'\PIMOpos_corr.csv')
+#%% repeat above, but for creating an array of the p values
+#reshape the p values (each column in p_values) into 2D arrays to be used by seaborn heatmaps
+p_PIMOneg_2D = np.reshape(PIMOneg_p, (dims, dims))
+p_PIMOpos_2D = np.reshape(PIMOpos_p, (dims, dims))
+p_allcorr_2D = np.reshape(all_p, (dims, dims))
+#Convert 2D heatmap arrays into dataframe with labelled axes
+p_df_PIMOneg_2D = pandas.DataFrame(data=p_PIMOneg_2D,index=testvar_measures_short,columns=testvar_measures_short)
+p_df_PIMOpos_2D = pandas.DataFrame(data=p_PIMOpos_2D,index=testvar_measures_short,columns=testvar_measures_short)
+p_df_allcorr_2D = pandas.DataFrame(data=p_allcorr_2D,index=testvar_measures_short,columns=testvar_measures_short)
+#stick PIMO to the start
+temp=testvar_measures_short[:]
+temp.remove(PIMO_kwd)
+temp.insert(0, PIMO_kwd)
+#reorder dataframes with PIMO at the start              #This was commented because we want to use the original sort order of the spearman corr array, else p values will not match up to their respective spearman corr
+# df_allcorr_2D=df_allcorr_2D.reindex(temp)
+# df_allcorr_2D=df_allcorr_2D.reindex(columns=temp).sort_values(PIMO_kwd,ascending=False)
+#now, sort the columns by the same way the rows were sorted
+new_order=df_allcorr_2D.index
+p_df_allcorr_2D=p_df_allcorr_2D.reindex(columns=new_order)
+#apply this order to the df_PIMOneg_2D and df_PIMOpos_2D dataframes
+p_df_PIMOneg_2D=p_df_PIMOneg_2D.reindex(columns=new_order).reindex(index=new_order)
+p_df_PIMOpos_2D=p_df_PIMOpos_2D.reindex(columns=new_order).reindex(index=new_order)
+p_df_allcorr_2D=p_df_allcorr_2D.reindex(columns=new_order).reindex(index=new_order)
+
+p_df_allcorr_2D.to_csv(figpath + r'\all_p.csv')
+p_df_PIMOneg_2D.to_csv(figpath + r'\PIMOneg_p.csv')
+p_df_PIMOpos_2D.to_csv(figpath + r'\PIMOpos_p.csv')
 #%% plot sorted heatmaps
 fig, axes = plt.subplots(1, 3, figsize=(50,50))
 #fig.suptitle('Heatmaps')
