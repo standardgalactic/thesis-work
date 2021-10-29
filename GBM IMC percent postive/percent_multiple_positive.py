@@ -75,12 +75,16 @@ marker_short=[i.split('-', 1)[1] for i in marker_list]
 denominators=["CD68","CD163","Iba1"]
 # denominators=["CD68"]
 # denominators=["CD163"]
-# denominators=["IBA1"]
+# denominators=["Iba1"]
 numerators=["HK2","GLUT1","LDHA","CA9","ICAM1","Ki67"]
 pct_dp_PIMO_pos=[]
 pct_dp_PIMO_neg=[]
 denominator_used=[]
 numerator_used=[]
+cells_num_pos=[]
+cells_denum_pos=[]
+cells_num_neg=[]
+cells_denum_neg=[]
 for numerator in numerators:
 #numerator=numerators[0]
     
@@ -95,11 +99,18 @@ for numerator in numerators:
     if numerator_mask.sum()==0:
         pos_value= float("NaN")
         neg_value= float("NaN")
+#Append various measurements to a list
+    cells_num_pos.append((pos_mask&numerator_mask).sum()) #number of cells used in calculating numerator of pimo positive cells    
+    cells_denum_pos.append((pos_mask&denominator_mask).sum()) #number of cells used in calculating denominator of pimo positive cells
+    cells_num_neg.append((neg_mask&numerator_mask).sum()) #number of cells used in calculating numerator of pimo negative cells
+    cells_denum_neg.append((neg_mask&denominator_mask).sum()) #number of cells used in calculating denominator of pimo negative cells
+
     
-    pct_dp_PIMO_neg.append(neg_value)
-    pct_dp_PIMO_pos.append(pos_value)
+    
+    pct_dp_PIMO_neg.append(neg_value) #percent multiple positive in pimo negative area
+    pct_dp_PIMO_pos.append(pos_value)#percent multiple positive in pimo positive area
     
     denominator_used.append(denominators)
     numerator_used.append(numerator)
 
-pair_df=pandas.DataFrame(list(zip(numerator_used,denominator_used,pct_dp_PIMO_pos,pct_dp_PIMO_neg,[i / j for i, j in zip(pct_dp_PIMO_pos, pct_dp_PIMO_neg)])),columns =['numerator_used','denominator_used', 'pct_dp_PIMO_pos','pct_dp_PIMO_neg','ratio']).sort_values('ratio',ascending=False)
+pair_df=pandas.DataFrame(list(zip(numerator_used,denominator_used,pct_dp_PIMO_pos,pct_dp_PIMO_neg,[i / j for i, j in zip(pct_dp_PIMO_pos, pct_dp_PIMO_neg)],cells_num_pos,cells_denum_pos,cells_num_neg,cells_denum_neg)),columns =['numerator_used','denominator_used', 'pct_dp_PIMO_pos','pct_dp_PIMO_neg','ratio','cells_num_pos','cells_denum_pos','cells_num_neg','cells_denum_neg']).sort_values('ratio',ascending=False)
