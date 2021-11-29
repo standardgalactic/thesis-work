@@ -29,7 +29,7 @@ import time
 from scipy.stats import spearmanr
 import winsound
 #%% Read data
-csv_path=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\August 16 2021 - updated panel\cell_measurements.csv'
+csv_path=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3v2.csv'
 figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\August 16 2021 - updated panel\figures\panel 3 figures and tables\all_patients'
 
 data=pandas.read_csv(csv_path)
@@ -372,6 +372,10 @@ pair.tight_layout()
 PIMO_neg = testvar[testvar["Parent"]==param_neg_kwd]
 PIMOneg_corr = []
 PIMOneg_p = []
+all_corr = []
+all_p = []
+PIMOpos_corr = []
+PIMOpos_p = []
 
 for i in range(0,len(testvar_measures)):
     data1 = PIMO_neg[testvar_measures[i]].tolist()
@@ -386,8 +390,7 @@ spearmann_corr = pd.DataFrame(PIMOneg_corr,columns=['PIMOneg'])
 p_values = pd.DataFrame(PIMOneg_p,columns=['PIMOneg'])
 
 PIMO_pos = testvar[testvar["Parent"]==param_pos_kwd]
-PIMOpos_corr = []
-PIMOpos_p = []
+
 
 for i in range(0,len(testvar_measures)):
     data1 = PIMO_pos[testvar_measures[i]].tolist()
@@ -402,8 +405,7 @@ for i in range(0,len(testvar_measures)):
 spearmann_corr = spearmann_corr.assign(PIMOpos= PIMOpos_corr)
 p_values = p_values.assign(PIMOpos = PIMOpos_p)
 
-all_corr = []
-all_p = []
+
 
 for i in range(0,len(testvar_measures)):
     data1 = testvar[testvar_measures[i]].tolist()
@@ -428,32 +430,32 @@ p_values = p_values.assign(All = all_p)
 
 # ADD CASE FOR NO STATISTICAL SIGNIFICANCE***********************************************************************************************************************
 
-for neg_coeff,all_coeff,pos_coeff,ax,neg_p,all_p,pos_p in zip(spearmann_corr['PIMOneg'],spearmann_corr['All'],spearmann_corr['PIMOpos'],pair.axes.flatten(),p_values['PIMOneg'],p_values['All'],p_values['PIMOpos']):
+for neg_coeff,all_coeff,pos_coeff,ax,neg_ps,all_ps,pos_ps in zip(spearmann_corr['PIMOneg'],spearmann_corr['All'],spearmann_corr['PIMOpos'],pair.axes.flatten(),p_values['PIMOneg'],p_values['All'],p_values['PIMOpos']):
     xmin, xmax, ymin, ymax = ax.axis()
-    if (pos_p<p_thresh[0])&(pos_p>=p_thresh[1]):
+    if (pos_ps<p_thresh[0])&(pos_ps>=p_thresh[1]):
         ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '*', fontsize=5,color=colors[1]) #pimo positive
-    elif (pos_p<p_thresh[1])&(pos_p>=p_thresh[2]):
+    elif (pos_ps<p_thresh[1])&(pos_ps>=p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '**', fontsize=5,color=colors[1]) #pimo positive
-    elif (pos_p<p_thresh[2]):
+    elif (pos_ps<p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.6,str(pos_coeff) + '***', fontsize=5,color=colors[1]) #pimo positive
     else:
         ax.text(xmax*0.6, ymax*0.6,str(pos_coeff), fontsize=5,color=colors[1])
         
-    if (all_p<p_thresh[0])&(all_p>=p_thresh[1]):
+    if (all_ps<p_thresh[0])&(all_ps>=p_thresh[1]):
         ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '*', fontsize=5,color='black') #all cells
-    elif (all_p<p_thresh[1])&(all_p>=p_thresh[2]):
+    elif (all_ps<p_thresh[1])&(all_ps>=p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '**', fontsize=5,color='black') #all cells
-    elif (all_p<p_thresh[2]):
+    elif (all_ps<p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.7,str(all_coeff) + '***', fontsize=5,color='black') #all cells
     else:
         ax.text(xmax*0.6, ymax*0.7,str(all_coeff), fontsize=5,color='black')
         
        
-    if (neg_p<p_thresh[0])&(neg_p>=p_thresh[1]):
+    if (neg_ps<p_thresh[0])&(neg_ps>=p_thresh[1]):
         ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '*', fontsize=5,color=colors[0]) #pimo negitive
-    elif (neg_p<p_thresh[1])&(neg_p>=p_thresh[2]):
+    elif (neg_ps<p_thresh[1])&(neg_ps>=p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '**', fontsize=5,color=colors[0]) #pimo negitive
-    elif (neg_p<p_thresh[2]):
+    elif (neg_ps<p_thresh[2]):
         ax.text(xmax*0.6, ymax*0.8,str(neg_coeff) + '***', fontsize=5,color=colors[0]) #pimo negitive
     else:
         ax.text(xmax*0.6, ymax*0.8,str(neg_coeff), fontsize=5,color=colors[0]) #pimo negitive
@@ -477,8 +479,8 @@ plt.close()
 ##heatmap dimensions:
     #use testvar_measures for the temp short data
     #use measurements_of_interest for real deal
-#PIMO_kwd='PIMO'
-PIMO_kwd='Pimo'
+PIMO_kwd='PIMO'
+#PIMO_kwd='Pimo'
 
 dims = len(testvar_measures)
 

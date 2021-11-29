@@ -23,7 +23,7 @@ import time
 from scipy.stats import spearmanr
 import winsound
 #%% Read data
-data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\\despeckle_cell_measurements.csv')
+data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\despeckle_cell_measurements.csv')
 col_names=data.columns
 #%% set constants
 param_Name='Name'
@@ -35,7 +35,7 @@ param_image='Image'
 p_thresh=0.05,1e-28,1e-70 #p value thresholds for drawing *,**,*** on plots, respectively
 
 
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\figures\despeckled'
 seed=69
 #For intensity comparisons, specify number of standard deviations above mean to include intensities below it. Default is 2
 num_std_to_include=2

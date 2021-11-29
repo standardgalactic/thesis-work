@@ -96,6 +96,7 @@ for numerator in numerators:
     
     pos_value=(pos_mask&numerator_mask).sum()/(pos_mask&denominator_mask).sum()*100
     neg_value=(neg_mask&numerator_mask).sum()/(neg_mask&denominator_mask).sum()*100
+    #MARK NOTE: CHANGE NUMERATOR_MASK TO DENOMINATOR_MASK BELOW
     if numerator_mask.sum()==0:
         pos_value= float("NaN")
         neg_value= float("NaN")
