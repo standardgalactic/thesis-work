@@ -34,9 +34,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from datetime import datetime
+import sklearn.neighbors
 #%% Read data
 csv_path=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3v2.csv'
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3\all_patients'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3\all_patients\experimental\458_dim_umaps'
 
 data=pandas.read_csv(csv_path)
 #force str type on Patient column to avoid weird discretization issues
@@ -78,18 +79,22 @@ plt.close('all')
 plt.style.use('default')
 #sort data such that PIMO negative cells show up first, gives a consistent order to violin plots
 data.sort_values(param_Parent,inplace=True)
-
+#(experimental) cluster on as many column names as possible that are non-string based
+measures_to_ignore=['Image','Name','Class','Parent','ROI','Centroid X µm','Centroid Y µm','Sex','IDH_status','primary_recurrent','Patient','IMC_ROI','raw_parent','Nucleus: Circularity','Cell: Circularity','Distance to annotation with pimo positive µm','distance_to_border','Distance to annotation with pimo negative µm','Distance to annotation with CD31+ vessel µm']
+cols_to_cluster = list(set(col_names) - set(measures_to_ignore))
+cols_with_NaN=data.columns[data.isna().any()].tolist()
 #%%Get shortened names of measurements
 measure_short=[i.split('-', 1)[1] for i in measurements_of_interest]
 measure_short_for_fname=[i.split(':', 1)[0] for i in measure_short]
 #%% set up UMAP
 startTime = datetime.now()
 reducer = umap.UMAP(random_state=seed)
-reduced_data = data[measurements_of_interest].values #only perform clustering on columns listed in measurements_of_interest
+#reduced_data = data[measurements_of_interest].values #only perform clustering on columns listed in measurements_of_interest
+reduced_data = data[cols_to_cluster].values #only perform clustering on columns listed in measurements_of_interest
 
 scaled_data = StandardScaler().fit_transform(reduced_data) #convert intensities into normalized z scores
 #overwrite original data as the scaled data, if planning to visualize
-data[measurements_of_interest]=scaled_data
+data[cols_to_cluster]=scaled_data
 # calculate the UMAP
 #compute UMAP
 
@@ -98,12 +103,58 @@ embedding = reducer.fit_transform(scaled_data)
 data['UMAP_X']=embedding[:,0]
 data['UMAP_Y']=embedding[:,1]
 print(datetime.now() - startTime)
+#%% Create plot showing distance between specific groups
+#Here's what to do:
+    # create 2 new columns for class of interest: IDH_status_within and IDH_status_between
+    #IDH_status_within: for each cell, calculate the average UMAP embedding distance to cells present in the same group (MUT, WT)
+    #IDH_status_between: for each cell, calculate the average UMAPembedding distance to cells present in the opposite group (MUT, WT)
+    #to get mean distance for each group, use scipy.spatial.distance.pdist. Then calculate distance of all cells of same group to this one value
+    #then, do a boxplot with two bars: IDH_status_within and IDH_status_between. Use a statistical test to say whether there's a difference or not
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#%% identify outliers using the Local Outlier Factor method
+contamination=0.1 # the percentage of data that the user expects to be noise
+outlier_scores = sklearn.neighbors.LocalOutlierFactor(contamination=contamination).fit_predict(reducer.embedding_)
+# %%Plot scatterplot of outliers
+# plt.close('all')
+
+# coloring=outlier_scores
+
+# plt.gca().set_facecolor((0, 0, 0))
+# h=sns.scatterplot(data=data, x="UMAP_X", y="UMAP_Y",hue=coloring,linewidth=0,s=0.7,palette=['red','blue'],legend=True)
+
+# #h=plt.scatter(data['UMAP_X'],data['UMAP_Y'],c=data[coloring],norm=plt.Normalize(vmin=None, vmax=3, clip=False),edgecolors='None',alpha=0.5,s=2.5)
+# plt.gca().set_aspect('equal')
+# #plt.colorbar() #FIGURE OUT HOW TO SHOW COLORBAR WITHOUT ALPHA BLENDING INTERFERING
+# plt.title('Outliers')
+
+# figManager = plt.get_current_fig_manager()
+# figManager.window.showMaximized()
+# plt.pause(1)
+# plt.tight_layout()
+#plt.savefig(figpath + '\PIMO.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 #%% Plot a subplot of every IHC marker intensity as specified in measurements_of_interest
 plt.close('all')
 print ('Plotting per-IHC marker plot')
 nrows=4
 ncols=6
-pt_size=10000/len(data)
+pt_size=5000/len(data)
 fig, ax = plt.subplots(nrows=nrows, ncols=ncols,figsize=(ncols*2.5, nrows*2))
 #linearize ax into axz so that you have a variable you can iterate over
 axs=ax.ravel()

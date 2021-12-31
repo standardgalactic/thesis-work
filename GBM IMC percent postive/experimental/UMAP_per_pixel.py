@@ -3,6 +3,9 @@
 Created on Mon Nov  1 17:51:37 2021
 
 @author: Mark Zaidi
+UMAP per-pixel
+Basically, create 1 um pixel tiles across the image, add intensity, texture, smoothed, whatever features, and see how UMAP + clustering turns out
+
 #Stuff I want to do:
     - extract an additional dimension from the embedding (3rd dimension), rotate plot in a video using https://matplotlib.org/stable/gallery/mplot3d/rotate_axes3d_sgskip.html
     - Apply some kind of clustering (Phenograph preferably)
@@ -36,7 +39,7 @@ import pandas as pd
 from datetime import datetime
 #%% Read data
 csv_path=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3v2.csv'
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3\all_patients'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3\53B'
 
 data=pandas.read_csv(csv_path)
 #force str type on Patient column to avoid weird discretization issues
@@ -47,9 +50,9 @@ col_names=data.columns
 data['Patient']=[i.split('-', 1)[0] for i in data['Patient']]
 #%%Optional filtering of data
 #Filter by patient
-# slide_IDs=pandas.unique(data["Patient"])
-# slide_IDs.sort()
-# data=data[data['Patient'].str.contains("53B")]
+slide_IDs=pandas.unique(data["Patient"])
+slide_IDs.sort()
+data=data[data['Patient'].str.contains("53B")]
 #%% set constants
 param_Name='Name'
 param_Parent='Parent'
@@ -78,15 +81,13 @@ plt.close('all')
 plt.style.use('default')
 #sort data such that PIMO negative cells show up first, gives a consistent order to violin plots
 data.sort_values(param_Parent,inplace=True)
-
 #%%Get shortened names of measurements
 measure_short=[i.split('-', 1)[1] for i in measurements_of_interest]
 measure_short_for_fname=[i.split(':', 1)[0] for i in measure_short]
 #%% set up UMAP
 startTime = datetime.now()
-reducer = umap.UMAP(random_state=seed)
+reducer = umap.UMAP()
 reduced_data = data[measurements_of_interest].values #only perform clustering on columns listed in measurements_of_interest
-
 scaled_data = StandardScaler().fit_transform(reduced_data) #convert intensities into normalized z scores
 #overwrite original data as the scaled data, if planning to visualize
 data[measurements_of_interest]=scaled_data
@@ -152,24 +153,24 @@ plt.savefig(figpath + '\\UMAP_per_marker.png',dpi=800,pad_inches=0.1,bbox_inches
 # plt.savefig(figpath + '\PIMO.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 
 #%%Plot scatterplot of Patients
-print('Plotting patient-colored plot')
-plt.close('all')
+# print('Plotting patient-colored plot')
+# plt.close('all')
 
-coloring='Patient'
+# coloring='Patient'
 
-plt.gca().set_facecolor((0, 0, 0))
-h=sns.scatterplot(data=data, x="UMAP_X", y="UMAP_Y",hue=coloring,linewidth=0,s=0.7)
+# plt.gca().set_facecolor((0, 0, 0))
+# h=sns.scatterplot(data=data, x="UMAP_X", y="UMAP_Y",hue=coloring,linewidth=0,s=0.7)
 
-#h=plt.scatter(data['UMAP_X'],data['UMAP_Y'],c=data[coloring],norm=plt.Normalize(vmin=None, vmax=3, clip=False),edgecolors='None',alpha=0.5,s=2.5)
-plt.gca().set_aspect('equal')
-#plt.colorbar() #FIGURE OUT HOW TO SHOW COLORBAR WITHOUT ALPHA BLENDING INTERFERING
-plt.title(coloring)
+# #h=plt.scatter(data['UMAP_X'],data['UMAP_Y'],c=data[coloring],norm=plt.Normalize(vmin=None, vmax=3, clip=False),edgecolors='None',alpha=0.5,s=2.5)
+# plt.gca().set_aspect('equal')
+# #plt.colorbar() #FIGURE OUT HOW TO SHOW COLORBAR WITHOUT ALPHA BLENDING INTERFERING
+# plt.title(coloring)
 
-figManager = plt.get_current_fig_manager()
-figManager.window.showMaximized()
-plt.pause(2)
-plt.tight_layout()
-plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+# figManager = plt.get_current_fig_manager()
+# figManager.window.showMaximized()
+# plt.pause(2)
+# plt.tight_layout()
+# plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 
 #%%Plot scatterplot of gender
 # plt.close('all')
@@ -191,42 +192,42 @@ plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inche
 # plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 
 #%%Plot scatterplot of IDH_status
-plt.close('all')
+# plt.close('all')
 
-coloring='IDH_status'
+# coloring='IDH_status'
 
-plt.gca().set_facecolor((0, 0, 0))
-h=sns.scatterplot(data=data, x="UMAP_X", y="UMAP_Y",hue=coloring,linewidth=0,s=0.7)
+# plt.gca().set_facecolor((0, 0, 0))
+# h=sns.scatterplot(data=data, x="UMAP_X", y="UMAP_Y",hue=coloring,linewidth=0,s=0.7)
 
-#h=plt.scatter(data['UMAP_X'],data['UMAP_Y'],c=data[coloring],norm=plt.Normalize(vmin=None, vmax=3, clip=False),edgecolors='None',alpha=0.5,s=2.5)
-plt.gca().set_aspect('equal')
-#plt.colorbar() #FIGURE OUT HOW TO SHOW COLORBAR WITHOUT ALPHA BLENDING INTERFERING
-plt.title(coloring)
+# #h=plt.scatter(data['UMAP_X'],data['UMAP_Y'],c=data[coloring],norm=plt.Normalize(vmin=None, vmax=3, clip=False),edgecolors='None',alpha=0.5,s=2.5)
+# plt.gca().set_aspect('equal')
+# #plt.colorbar() #FIGURE OUT HOW TO SHOW COLORBAR WITHOUT ALPHA BLENDING INTERFERING
+# plt.title(coloring)
 
-figManager = plt.get_current_fig_manager()
-figManager.window.showMaximized()
-plt.pause(1)
-plt.tight_layout()
-plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+# figManager = plt.get_current_fig_manager()
+# figManager.window.showMaximized()
+# plt.pause(1)
+# plt.tight_layout()
+# plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 
 #%%Plot scatterplot of primary_recurrent
-plt.close('all')
+# plt.close('all')
 
-coloring='primary_recurrent'
+# coloring='primary_recurrent'
 
-plt.gca().set_facecolor((0, 0, 0))
-h=sns.scatterplot(data=data, x="UMAP_X", y="UMAP_Y",hue=coloring,linewidth=0,s=0.7)
+# plt.gca().set_facecolor((0, 0, 0))
+# h=sns.scatterplot(data=data, x="UMAP_X", y="UMAP_Y",hue=coloring,linewidth=0,s=0.7)
 
-#h=plt.scatter(data['UMAP_X'],data['UMAP_Y'],c=data[coloring],norm=plt.Normalize(vmin=None, vmax=3, clip=False),edgecolors='None',alpha=0.5,s=2.5)
-plt.gca().set_aspect('equal')
-#plt.colorbar() #FIGURE OUT HOW TO SHOW COLORBAR WITHOUT ALPHA BLENDING INTERFERING
-plt.title(coloring)
+# #h=plt.scatter(data['UMAP_X'],data['UMAP_Y'],c=data[coloring],norm=plt.Normalize(vmin=None, vmax=3, clip=False),edgecolors='None',alpha=0.5,s=2.5)
+# plt.gca().set_aspect('equal')
+# #plt.colorbar() #FIGURE OUT HOW TO SHOW COLORBAR WITHOUT ALPHA BLENDING INTERFERING
+# plt.title(coloring)
 
-figManager = plt.get_current_fig_manager()
-figManager.window.showMaximized()
-plt.pause(1)
-plt.tight_layout()
-plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+# figManager = plt.get_current_fig_manager()
+# figManager.window.showMaximized()
+# plt.pause(1)
+# plt.tight_layout()
+# plt.savefig(figpath + '\\' + coloring + '.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 
 #%%Plot scatterplot of Cell area
 # plt.close('all')

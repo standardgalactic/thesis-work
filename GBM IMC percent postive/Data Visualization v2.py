@@ -30,7 +30,7 @@ from scipy.stats import spearmanr
 import winsound
 #%% Read data
 csv_path=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\IMC_data_clustering\Panel_3v2.csv'
-figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\August 16 2021 - updated panel\figures\panel 3 figures and tables\all_patients'
+figpath=r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\August 16 2021 - updated panel\figures\panel 3 figures and tables\IDHmut'
 
 data=pandas.read_csv(csv_path)
 #annotation_data=pandas.read_csv(r'C:\Users\Mark Zaidi\Documents\QuPath\PIMO GBM related projects\Feb 2021 IMC\annotation_measurements.csv')
@@ -66,9 +66,9 @@ plt.style.use('default')
 data.sort_values(param_Parent,inplace=True)
 #%%Optional filtering of data
 #Filter by patient
-# slide_IDs=pandas.unique(data["Image"])
-# slide_IDs.sort()
-# data=data[data['Image'].str.contains("28")]
+slide_IDs=pandas.unique(data["IDH_status"])
+slide_IDs.sort()
+data=data[data['IDH_status'].str.contains("MUT")]
 #%% get unique IHC marker names
 #split class name by :, listing all classes a cell belongs to
 df2=data[param_Name].str.split(':',expand=True)
@@ -345,6 +345,7 @@ start_time = time.time()
 plt.style.use('default')
 plt.rcParams.update({'font.size': 5})
 pair = sns.pairplot(data=testvar.sample(n=1000,random_state=seed).sort_values([param_Parent]),vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=0.01),diag_kws=dict(common_norm=False))
+pair._legend.remove()
 print('It took', time.time()-start_time, 'seconds for the pairplot.')
 #Variants for plotting only positive or negative data
 #pair = sns.pairplot(data=testvar[testvar["Parent"]==param_neg_kwd],vars=testvar_measures, hue='Parent',plot_kws=dict(marker=".", linewidth=1,edgecolor=None,alpha=.01),palette=[colors[0]])
