@@ -85,7 +85,7 @@ plt.savefig(fig_dir + r'\QC.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 
 sc.pp.filter_cells(adata, min_counts=5000)
 sc.pp.filter_cells(adata, max_counts=35000)
-adata = adata[adata.obs["pct_counts_mt"] < 20]
+adata = adata[adata.obs["pct_counts_mt"] < 20] #Very high, see what others have done. Might be different for human. Check w/ PMGC
 print(f"#cells after MT filter: {adata.n_obs}")
 sc.pp.filter_genes(adata, min_cells=10)
 
@@ -155,15 +155,17 @@ for curr_group in ranked_df['group'].unique():
 ranked_df_loupe_style=pd.concat(list_of_df,axis=1)
 ranked_df_loupe_style.to_csv(fig_dir + r'\gene_cluster_rankings_loupe_style.csv',index=False)
 #%%Preview clusters side by side with a marker of hypoxia
+plt.close('all')
+
 sc.pl.spatial(adata, img_key="hires", color=["leiden_gene", "VEGFA"])
 plt.savefig(fig_dir + r'\clustering and marker preview.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 #%%Identify cluster marker genes
 plt.close('all')
 #Visualize the top 10 genes that differentiate a specific cluster. Here, we use the hypoxic cluster, cluster 6
 #Note, you can specify more than one groups
-cluster_to_heatmap='6'
-sc.pl.rank_genes_groups_heatmap(adata, groups=cluster_to_heatmap, n_genes=10, groupby="leiden_gene")
-plt.savefig(fig_dir + r'\cluster '+cluster_to_heatmap+' marker genes.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
+cluster_to_heatmap=['6','11','7']
+sc.pl.rank_genes_groups_heatmap(adata, groups=cluster_to_heatmap, n_genes=10, groupby="leiden_gene") #change ngenes to see if dendrogram changes
+plt.savefig(fig_dir + r'\cluster '+','.join(cluster_to_heatmap)+' marker genes.png',dpi=800,pad_inches=0.1,bbox_inches='tight')
 plt.close('all')
 
 #From all of this, we show that non-spatial clustering can identify regions of hypoxia, however here, this is separated into clusters 6 and 11.
