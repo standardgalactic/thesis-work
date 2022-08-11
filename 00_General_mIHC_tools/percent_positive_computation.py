@@ -14,7 +14,6 @@ Currently computes:
     Will yield raw_data.csv, where each row is an entry (ROI, group, etc.) and each column is a percent positive score
     Data visualization should be kept as a separate script
 To implement:
-    Negative gating for percent multiple positive
     Clean up comments
 """
 #%% Import libraries
